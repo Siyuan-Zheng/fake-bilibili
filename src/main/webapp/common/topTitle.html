@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+<div class="top-sbt">
+    <div class="search">
+        <input type="text" class="searchText" placeholder="轻击键盘 静候佳音">
+        <input type="button" class="button" onclick="search()">
+    </div>
+</div>
+</body>
+<script>
+    function search() {
+        let videoName = $(".searchText").val();
+        if (videoName !== null && videoName !== undefined && videoName !==''){
+            window.location = "search?"+videoName;
+        }
+    }
+</script>
+</html>

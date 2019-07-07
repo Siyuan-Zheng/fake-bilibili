@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+<body>
+<div class="win-con main-win clearfix">
+    <form class="layui-form" action="">
+        <div class="win-half left">
+            <div class="layui-form-item">
+                <label class="layui-form-label">分区名称：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" lay-verify="title" autocomplete="off" class="layui-input"
+                           id="channelName">
+                </div>
+            </div>
+            <div class="layui-form-item img-upload">
+                <label class="layui-form-label">分区图标：</label>
+                <div class="layui-input-block clearfix">
+                    <input type="file" class="fileUpload" name="" id="imageInput" value="" style="display: none;"/>
+                    <div class="img-box img-click left">
+                        <img src="/static/images/channelManage/add.png" alt="" id="image"/>
+                    </div>
+                    <span class="up-tips left">*图片不超过2M</span>
+                </div>
+            </div>
+        </div>
+        <div class="win-half left">
+            <div class="layui-form-item big-text">
+                <label class="layui-form-label">分区描述：</label>
+                <div class="layui-input-block">
+                    <textarea placeholder="" class="layui-textarea" name="desc" id="channelDesc"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="btn-box clearfix">
+        <button class="layui-btn left qd">确定</button>
+        <button class="layui-btn right qx">取消</button>
+    </div>
+</div>
+</body>
+<script>
+
+    let imageFile;
+    let flag = false;
+
+    //预览
+    $("#imageInput").change(function () {
+        flag = true;
+        $("#image").attr("src", "/static/images/channelManage/up_icon.png");
+
+        imageFile = $("#imageInput")[0].files[0];
+        let reader = new FileReader();
+        reader.onload = function () {
+            $("#image").attr("src", this.result);
+        };
+        reader.readAsDataURL(imageFile);
+    });
+
+
+    layui.use(['layer', 'form', 'table', 'element'], function () {
+            let layer = layui.layer
+                , form = layui.form
+                , table = layui.table
+                , element = layui.element;
+
+
+            $(".qd").click(function () {
+                let formData = new FormData;
+                let channelName = $("#channelName").val();
+                let channelDesc = $("#channelDesc").val();
+                formData.append("image", imageFile);
+                if (flag === true) {
+                    $.ajax({
+                        url: "/dataUpload?method=uploadImage",
+                        type: "post",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (data) {
+                            let result = JSON.parse(data);
+                            console.log(result);
+                            if (result.msg === 'ok') {
+                                $.ajax({
+                                    type: 'post',
+                                    url: '/channelManageData',
+                                    data: {
+                                        method: 'addChannel',
+                                        channelName: channelName,
+                                        channelDesc: channelDesc,
+                                        imagePath: result.imagePath,
+                                    },
+                                    dataType: 'json',
+                                    success: function (data1) {
+                                        if (data1.msg == 'ok') {
+                                            let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                            parent.layer.close(index); //再执行关闭
+                                            parent.reloadNav();
+                                        }
+                                    }
+                                })
+                            }
+                        }
+                    });
+                }
+            });
+
+            //弹窗按钮关闭
+            $('.qx').click(function () {
+                let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index); //再执行关闭
+            });
+            //上传图片、视频点击事件
+            $('.img-click').click(function () {
+                $('.fileUpload').click();
+            });
+            $('.audio-click').click(function () {
+                $('.audioUpload').click();
+            });
+
+        }
+    );
+</script>
+</html>

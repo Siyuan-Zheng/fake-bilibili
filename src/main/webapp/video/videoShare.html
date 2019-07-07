@@ -1,0 +1,125 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('动态分享')"></head>
+<link rel="stylesheet" th:href="@{/static/css/video/videoShare.css}">
+<body>
+<div id="app-container">
+    <div share-top class="main">
+        <div share-top class="share-step">
+            <div share-top class="title">分享到动态</div>
+            <div share-top class="close" onclick="parent.closeShare()"></div>
+            <div share-top class="input-field">
+                <textarea share-top placeholder="来说说分享的理由？|´・ω・)ノ" autofocus="autofocus" class="share-text" id="dynamicContentInput"></textarea>
+            </div>
+            <div share-t share-top class="share-content">
+                <div share-title share-t class="video-card share-video-card">
+                    <div share-title class="up-info">
+                        <div share-title class="avatar" style="background-image: url();" id="videoUserFace"></div>
+                        <div share-title class="name" id="videoUserName"></div>
+                        <div share-title class="tip">的投稿视频</div>
+                    </div>
+                    <div share-info share-title class="video-container share-card-video">
+                        <div  share-info>
+                            <div share-info  class="video-wrap">
+                                <div share-info  class="image-area">
+                                    <div share-info  class="types">投稿视频</div>
+                                    <img share-info src="" id="videoImagePath">
+                                </div>
+                                <div share-info  class="text-area">
+                                    <div share-info  class="title" id="videoTitle"></div>
+                                    <div share-info  class="content" id="videoDesc"></div>
+                                    <div share-info  class="view-danmaku">
+                                        <div share-info >
+                                            <i share-info class="bp-icon-font icon-play-a"></i>
+                                            <span share-info  class="view" id="videoPointNum"></span>
+                                        </div>
+                                        <div share-info >
+                                            <i share-info class="bp-icon-font icon-danmu-a"></i>
+                                            <span share-info  class="danmaku" id="videoCommentNum"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div share-top class="btn-field">
+                <button share-top class="share-btn clickable" onclick="sendDynamic()">发布</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let videoId = getUrlPara();
+
+    $(function () {
+        loadVideo(videoId);
+    });
+
+    function sendDynamic() {
+        let dynamicContent = $("#dynamicContentInput").val();
+        let timestamp = (new Date()).getTime();
+
+        if (dynamicContent !== null && dynamicContent !== undefined && dynamicContent !== ""){
+            $.ajax({
+                type: 'post',
+                url: '/dynamicData',
+                data: {
+                    method: 'addDynamic',
+                    videoId: videoId,
+                    userId: user.userId,
+                    dynamicContent: dynamicContent,
+                    dynamicTime: timestamp,
+                    dynamicType: 1,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.msg == "ok"){
+                        parent.closeShare();
+                    } else {
+                        alert("分享失败");
+                    }
+                }
+            })
+        } else {
+            alert("请输入内容")
+        }
+
+    }
+
+    function loadVideo(videoId){
+        $.ajax({
+            type: 'post',
+            url: '/videoData',
+            data: {
+                method: 'getVideoInfo',
+                videoId: videoId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.msg == "ok"){
+                    let videoInfo = JSON.parse(data.videoInfo);
+
+                    console.log(videoInfo);
+
+                    if (videoInfo !== null && videoInfo !== undefined){
+                        $("#videoImagePath").attr("src",videoInfo.imagePath);
+                        $("#videoUserName").html(videoInfo.userName);
+                        $("#videoTitle").html(videoInfo.videoName);
+                        $("#videoDesc").html(videoInfo.videoDesc);
+                        $("#videoPointNum").html(videoInfo.videoPointNum);
+                        $("#videoCommentNum").html(videoInfo.videoCommentNum);
+
+                    }
+                }
+            }
+        })
+
+    }
+
+
+</script>
+
+</body>
+</html>

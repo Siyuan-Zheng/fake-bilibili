@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('视频')"></head>
+<link rel="stylesheet" th:href="@{/static/css/video/video.css}">
+<body>
+
+<div class="bili-header-m">
+    <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+</div>
+
+<div class="v-wrap" style="width: 1111px; padding: 0px;">
+    <div class="l-con" style="width: 761px;">
+        <div class="video-info">
+            <h1 class="video-title">
+                <span class="tit tr-fix" id="videoName"></span>
+            </h1>
+            <div class="video-data">
+                    <span class="a-crumbs">
+                        <a href="" id="videoType"></a>
+                    </span>
+                <span id="uploadTime"></span>
+            </div>
+            <div class="video-data">
+                <span class="view">
+                    <span id="pointNum"></span>
+                    播放
+                </span>
+                <span class="copyright">
+                    <i class="van-icon-info_prohibit"></i>
+                    未经作者授权，禁止转载
+                </span>
+            </div>
+        </div>
+        <div id="playerWrap" class="player-wrap" style="height: auto;">
+            <video controls style="width: 761px; height: auto; position: static; outline: none" id="video"></video>
+        </div>
+        <div class="video-toolbar">
+            <div class="ops">
+                <span class="like" id="likeBtn">
+                    <i class="van-icon-videodetails_like"></i>
+                    <span id="likeNum"></span>
+                </span>
+                <span title="收藏人数" class="collect" id="favoriteBtn">
+                    <i class="van-icon-videodetails_collec"></i>
+                    <span id="favoriteNum"></span>
+                </span>
+                <span title="分享" class="share" id="shareBtn">
+                    <i class="van-icon-videodetails_share"></i>分享
+                </span>
+<!--                <span></span>-->
+                <span title="举报" class="share" id="reportBtn" style="margin-left: 400px;">
+                    举报
+                </span>
+            </div>
+        </div>
+        <div id="v_desc" class="video-desc">
+            <div class="info" id="videoDesc"></div>
+        </div>
+        <div id="v_tag" class="s_tag">
+            <ul class="tag-area clearfix" id="tagList">
+            </ul>
+        </div>
+        <div id="comment" class="comment-m">
+            <div class="common">
+                <div class="b-head">
+                    <span class="b-head-t results" id="videoCommentNum"></span>
+                    <span class="b-head-t">评论</span>
+                </div>
+                <div class="comment" style="position: relative;">
+                    <div class="bb-comment ">
+                        <div class="comment-send ">
+                            <div class="user-face">
+                                <img class="user-head" src="" id="commentUserFace">
+                            </div>
+                            <div class="textarea-container">
+                                <i class="ipt-arrow"></i>
+                                <textarea cols="80" rows="5" class="ipt-txt" id="commentInput"></textarea>
+                                <button type="submit" class="comment-submit" onclick="addComment()">发表评论</button>
+                            </div>
+                        </div>
+                        <div class="comment-list" id="commentList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="r-con">
+        <div id="v_upinfo" class="up-info">
+            <div class="u-face">
+                <a href="/personalCenter" class="fa">
+                    <img src="" width="48" height="48" class="up-face">
+                </a>
+            </div>
+            <div class="u-info">
+                <div class="name" style="line-height:20px;height:20px;">
+                    <a href="/personalCenter" class="username" id="videoUserName"></a>
+
+                </div>
+                <div class="desc" id="userDesc"></div>
+            </div>
+            <div class="btn-panel">
+                <div class="default-btn follow-btn b-gz" id="followBtn">
+                        <span class="has-charge">
+                            <i class="van-icon-general_addto_s" id="addSymbol"></i><span
+                                id="alreadyFollow">已</span>关注 <span id="followNum"></span>
+                        </span>
+                </div>
+            </div>
+        </div>
+        <div id="reco_list" class="recommend-list">
+            <div class="rec-title">相关推荐</div>
+            <div class="rec-list" id="recommendList"></div>
+        </div>
+    </div>
+</div>
+<div style="position: fixed; top: 0px; right: 0px; bottom: 0px; left: 0px; overflow: auto; margin: 0px; background-color: rgba(0, 0, 0, 0.65); z-index: 2001; display: none" id="shareDiv">
+    <iframe name="dynmic-share" width="610" height="425" src="" style="position: absolute; left: 50%; top: 50%; transform: translateX(-50%) translateY(-50%); box-sizing: border-box; margin-bottom: 50px;" id="shareFrame"></iframe>
+</div>
+</body>
+<script>
+
+    $("#commonHeader").load("/common/commonHeader.html");
+
+    let videoId = getUrlPara();
+    let videoUserId;
+    let followFlag;
+    let followed = [];
+    let follower = [];
+    let followerNum;
+    let favoriteNum;
+    let likeNum;
+
+    $.ajaxSetup({
+        type: 'POST',
+        complete: function (xhr, status) {
+            var sessionStatus = xhr.getResponseHeader('status');
+            if (sessionStatus == 'noLogin') {
+                parent.location.href = "login";
+            }
+        }
+    });
+
+    $("#shareBtn").click(function () {
+        $("#shareDiv").show();
+        $("#shareFrame").attr("src","/videoShare?"+videoId)
+    });
+
+
+
+    $(function () {
+        loadVideoInfo();
+        loadFollow();
+        loadFavorite();
+        addHistory();
+        addPointNum();
+        loadComment(1);
+    });
+
+    function closeShare() {
+        $("#shareDiv").hide();
+    }
+
+    function loadComment(page) {
+        $.ajax({
+            type: 'post',
+            url: '/commentData',
+            data: {
+                method: 'getCommentList',
+                videoId: videoId,
+                page: page,
+                limit: 18,
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                $("#commentList").empty();
+
+                let commentList = JSON.parse(data.commentList);
+                for (let i = 0; i < commentList.length; i++) {
+                    let userName = commentList[i].userName;
+                    let imagePath = commentList[i].imagePath;
+                    let userId = commentList[i].userId;
+                    let commentContext = commentList[i].commentContext;
+                    let commentId = commentList[i].commentId;
+                    let commentTime = timestampToTime(commentList[i].commentTime);
+                    let likeNum = commentList[i].likeNum;
+                    let levelId = commentList[i].levelId;
+                    let commentType = commentList[i].commentType;
+                    let rowNum = (commentList[i].rowNum).toFixed(0);
+
+                    if (commentType == "1"){
+                        $("#commentList").append(
+                            "<div class=\"list-item reply-wrap \" >" +
+                            "<div class=\"user-face\">" +
+                            "<a href=\"/personalCenter?" + userId + "\">" +
+                            "<img src=\"" + imagePath + "\">" +
+                            "</a>" +
+                            "</div>" +
+                            "<div class=\"con \">" +
+                            "<div class=\"user\">" +
+                            "<a href=\"/personalCenter?" + userId + "\" class=\"name \">" + userName + "</a>" +
+                            "<a href=\"\" >" +
+                            "<i class=\"level l" + levelId + "\"></i>" +
+                            "</a>" +
+                            "</div>" +
+                            "<p class=\"text\">" + commentContext + "</p>" +
+                            "<div class=\"info\">" +
+                            "<span class=\"floor\">#" + rowNum + "</span>" +
+                            "<span class=\"time\">" + commentTime + "</span>" +
+                            "<span class=\"like \">" +
+                            "<i onclick='likeComment(\"" + commentId + "\")'></i>" +
+                            "<span commentLikeNumSpan = \""+ commentId +"\">" + likeNum + "</span>" +
+                            "</span>" +
+                            "<span class=\"reply btn-hover replayBtn\" onclick='showReplyDiv(\"" + commentId + "\",\""+ userId +"\")'>回复</span>" +
+                            "<div class=\"operation\">" +
+                            "<div class=\"spot\" onclick='showTool(\"" + commentId + "\")'></div>" +
+                            "<div class=\"opera-list\" toolDivId =\"" + commentId + "\">" +
+                            "<ul>" +
+                            "<li class=\"report\" onclick='reportComment(\""+ commentId +"\")'>举报</li>" +
+                            "</ul>" +
+                            "</div>" +
+                            "</div>" +
+                            "</div>" +
+                            "<div class=\"reply-box\" commentReplyDivId = \"" + commentId + "\"></div>" +
+                            "<div class=\"paging-box\" pageDivId = \""+ commentId +"\"></div>" +
+                            "<div class=\"comment-send \" commentDivId = " + commentId + " style='display: none'>" +
+                            "<div class=\"user-face\">" +
+                            "<img class=\"user-head\" src=\"" + user.imagePath + "\">" +
+                            "</div>" +
+                            "<div class=\"textarea-container\">" +
+                            "<i class=\"ipt-arrow\"></i>" +
+                            "<textarea cols=\"80\" rows=\"5\" class=\"ipt-txt\" replyContentInput = \"" + commentId + "\"></textarea>" +
+                            "<button type=\"submit\" class=\"comment-submit replyBtn\" onclick='sendReply(\"" + commentId + "\",\""+ userId +"\")'>发表评论</button>" +
+                            "</div>" +
+                            "</div>" +
+                            "</div>"
+                        );
+                    }
+                    loadReply(commentId,1);
+                }
+            }
+        });
+    }
+
+    function addComment() {
+
+        let commentContent = $("#commentInput").val();
+        let timestamp = (new Date()).getTime();
+
+        $.ajax({
+            type: 'post',
+            url: '/commentData',
+            data: {
+                method: 'addComment',
+                videoId: videoId,
+                commentContent: commentContent,
+                userId: user.userId,
+                commentTime: timestamp,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.msg == "ok"){
+                    loadComment(1);
+                    $("#commentInput").val("");
+                    $("#videoCommentNum").html(($("#videoCommentNum").html())*1+1);
+                }
+            }
+        })
+    }
+
+    function reportComment(commentId) {
+        alert("举报成功");
+    }
+
+    function loadReply(commentId,page) {
+            $.ajax({
+                type: 'post',
+                url: '/replyData',
+                data: {
+                    method: 'getReplyList',
+                    commentId: commentId,
+                    page: page,
+                    limit: 5,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    let replyList = JSON.parse(data.replyList);
+                    let pageInfo = JSON.parse(data.pageInfo);
+
+                    $("div[commentReplyDivId = "+ commentId +"]").empty();
+                    for (let i = 0; i < replyList.length; i++) {
+                        let replyId = replyList[i].replyId;
+                        let replyContent = replyList[i].replyContent;
+                        let replyType = replyList[i].replyType;
+                        let fromUserId = replyList[i].fromUserId;
+                        let userName = replyList[i].userName;
+                        let toUserId = replyList[i].toUserId;
+                        let toUserName = replyList[i].toUserName;
+                        let replyTime = timestampToTime(replyList[i].replyTime);
+                        let replyLikeNum = replyList[i].replyLikeNum;
+                        let imagePath = replyList[i].imagePath;
+                        let levelId = replyList[i].levelId;
+
+                        if (replyType == 2){
+                            replyContent = " 回复<a href=\"/personalCenter?"+ toUserId +"\">@"+ toUserName +" </a> :"+replyContent
+                        }
+
+                        $("div[commentReplyDivId = "+ commentId +"]").append(
+                            "<div class=\"reply-item reply-wrap\">" +
+                            "<a href=\"/personalCenter?"+ fromUserId +"\" class=\"reply-face\" style=\"top: 0px;\">" +
+                            "<img src=\""+ imagePath +"\">" +
+                            "</a>" +
+                            "<div class=\"reply-con\">" +
+                            "<div class=\"user\">" +
+                            "<a href=\"personalCenter"+ fromUserId +"\" class=\"name \">"+ userName +"</a>" +
+                            "<a href=\"\" >" +
+                            "<i class=\"level l"+ levelId +"\"></i>" +
+                            "</a>" +
+                            "<span class=\"text-con\">"+ replyContent +"</span>" +
+                            "</div>" +
+                            "</div>" +
+                            "<div class=\"info\">" +
+                            "<span class=\"time\">"+ replyTime +"</span>" +
+                            "<span class=\"like \" onclick='likeReply(\""+ replyId +"\")'>" +
+                            "<i></i>" +
+                            "<span replyLikeNumSpan =\""+ replyId +"\">"+ replyLikeNum +"</span>" +
+                            "</span>" +
+                            "<span class=\"reply btn-hover\" onclick='showReplyReplyDiv(\""+ commentId +"\",\""+ userName +"\",\""+ replyId +"\",\""+ fromUserId +"\")'>回复</span>" +
+                            "<div class=\"operation btn-hover btn-hide-re\">" +
+                            "<div class=\"spot\" onclick='showReplyTool(\""+ replyId +"\")'></div>" +
+                            "<div class=\"opera-list\" replyToolDivId = \""+ replyId +"\">" +
+                            "<ul>" +
+                            "<li class=\"report\">举报</li>" +
+                            "</ul>" +
+                            "</div>" +
+                            "</div>" +
+                            "</div>" +
+                            "</div>"
+                        )
+                    }
+                    if (pageInfo.totalRecordsNum > 1){
+                        changePage(pageInfo,commentId);
+                    }
+                }
+            });
+    }
+
+    function changePage(pageInfo, commentId) {
+
+        $("div[pageDivId = "+ commentId +"]").empty();
+        let currentPageNum = pageInfo.currentPageNum;
+        let prePage = pageInfo.prevPageNum;
+        let nextPage = pageInfo.nextPageNum;
+        let pages = pageInfo.totalPageNum;
+        let length = pages-1;
+        let addHtml ='<span class="result">共'+ pages +'页</span>';
+
+        $("#totalPage").html(pages);
+
+        if(currentPageNum*1 >1){
+            addHtml +="<a href=\"javascript:;\" class=\"next\" onclick='loadReply(\""+ commentId +"\",\""+ prePage +"\")'>上一页</a>";
+        }
+        //5页的导航页
+        if(length*1 < 5){
+            for(let i=1;i<=pages;i++){
+                if(i == currentPageNum ){
+                    addHtml += "<span class=\"current\">"+ i +"</span>";
+                }else{
+                    addHtml += "<a href=\"javascript:;\" class=\"tcd-number\" onclick='loadReply(\""+ commentId +"\",\""+ i +"\")'>"+ i +"</a>";
+                }
+            }
+        }else{//总页数大于5页
+            if(currentPageNum<4){
+                for(let i = 1; i <= 5; i++){
+                    if(i == currentPageNum ){
+                        addHtml += "<span class=\"current\">"+ i +"</span>";
+                    }else{
+                        addHtml += "<a href=\"javascript:;\" class=\"tcd-number\" onclick='loadReply(\""+ commentId +"\",\""+ i +"\")'>"+ i +"</a>";
+                    }
+                }
+            }else{
+                let navigatePageNums;
+                if(currentPageNum <= pages-2){
+                    navigatePageNums = [currentPageNum-2,currentPageNum-1,currentPageNum,currentPageNum+1,currentPageNum+2];
+                }else{
+                    navigatePageNums = [pages-4,pages-3,pages-2,pages-1,pages];
+                }
+
+                for(let i=0; i<navigatePageNums.length; i++){
+                    if(navigatePageNums[i] == currentPageNum ){
+                        addHtml += "<span class=\"current\">"+ navigatePageNums[i] +"</span>";
+                    }else{
+                        addHtml += "<a href=\"javascript:;\" class=\"tcd-number\" onclick='loadReply(\""+ commentId +"\",\""+ navigatePageNums[i] +"\")'>"+ navigatePageNums[i] +"</a>";
+                    }
+                }
+            }
+        }
+
+        if (currentPageNum*1 < pages-2){
+            addHtml += "<span =\"dian\">...</span>" +
+                "<a href=\"javascript:;\" class=\"tcd-number\" onclick='loadReply(\""+ commentId +"\",\""+ pages +"\")'>"+ pages +"</a>";
+        }
+
+        if(currentPageNum*1 < pages*1){
+            addHtml += "<a href=\"javascript:;\" class=\"tcd-number\" onclick='loadReply(\""+ commentId +"\",\""+ nextPage +"\")'>下一页</a>"
+        }
+        $("div[pageDivId = "+ commentId +"]").append(addHtml);
+    }
+
+    function likeComment(commentId) {
+
+        $.ajax({
+            type: 'post',
+            url: '/commentData',
+            data: {
+                method: 'likeComment',
+                commentId: commentId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.msg == "ok"){
+                    $("span[commentLikeNumSpan = "+ commentId +"]").html(($("span[commentLikeNumSpan = "+ commentId +"]").html())*1+1);
+                }
+            }
+        })
+    }
+
+    function likeReply(replyId) {
+        $.ajax({
+            type: 'post',
+            url: '/replyData',
+            data: {
+                method: 'likeReply',
+                replyId: replyId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.msg == "ok"){
+                    $("span[replyLikeNumSpan = "+ replyId +"]").html(($("span[replyLikeNumSpan = "+ replyId +"]").html())*1+1);
+                }
+            }
+        })
+
+    }
+    
+    function sendReply(commentId, fromUserId) {
+
+        let replyContent = $("textarea[replyContentInput = "+ commentId +"]").val();
+        let timestamp = (new Date()).getTime();
+
+        $.ajax({
+            type: 'post',
+            url: '/replyData',
+            data: {
+                method: 'addReply',
+                replyContent: replyContent,
+                toCommentId: commentId,
+                fromUserId: user.userId,
+                replyTime: timestamp,
+                replyType: 1,
+                toUserId: fromUserId,
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                if (data.msg == "ok"){
+                    $("div[commentDivId = "+ commentId +"]").hide();
+                    loadReply(commentId,1);
+                } else {
+                    alert("回复失败");
+                }
+            }
+        })
+
+
+    }
+
+    function showReplyTool(replyId){
+        if ($("div[replyToolDivId = "+ replyId +"]").is(":visible")){
+            $("div[replyToolDivId = "+ replyId +"]").hide();
+        } else {
+            $("div[replyToolDivId = "+ replyId +"]").show();
+        }
+    }
+
+    function showTool(commentId){
+        if ($("div[toolDivId = "+ commentId +"]").is(":visible")){
+            $("div[toolDivId = "+ commentId +"]").hide();
+        } else {
+            $("div[toolDivId = "+ commentId +"]").show();
+        }
+    }
+
+    function showReplyDiv(commentId,fromUserId) {
+        if ($("div[commentDivId = "+ commentId +"]").is(":visible")){
+            $("div[commentDivId = "+ commentId +"]").hide();
+        } else {
+            $("div[commentDivId = "+ commentId +"]").show().val("");
+            $(".replyBtn").removeAttr("onclick").attr("onclick","sendReply(\""+ commentId +"\",\""+ fromUserId +"\")");
+        }
+    }
+
+    function showReplyReplyDiv(commentId, userName, replyId, fromUserId) {
+        if ($("div[commentDivId = "+ commentId +"]").is(":visible")){
+            $("div[commentDivId = "+ commentId +"]").hide();
+        } else {
+            $("div[commentDivId = " + commentId + "]").show();
+            $("textarea[replyContentInput = " + commentId + "]").val("").attr("placeholder", "回复 @" + userName+"：");
+            $(".replyBtn").removeAttr("onclick").attr("onclick","sendReplyReply(\""+ replyId +"\",\""+ commentId +"\",\""+ userName +"\",\""+ fromUserId +"\")");
+        }
+    }
+
+    function sendReplyReply(replyId,commentId,userName,fromUserId){
+        let replyContent = $("textarea[replyContentInput = "+ commentId +"]").val();
+        let timestamp = (new Date()).getTime();
+
+        $.ajax({
+            type: 'post',
+            url: '/replyData',
+            data: {
+                method: 'addReply',
+                replyContent: replyContent,
+                toCommentId: commentId,
+                fromUserId: user.userId,
+                replyTime: timestamp,
+                replyType: 2,
+                toUserId: fromUserId,
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                if (data.msg == "ok"){
+                    $("div[commentDivId = "+ commentId +"]").hide();
+                    loadReply(commentId,1);
+                } else {
+                    alert("回复失败");
+                }
+            }
+        });
+
+        $("div[commentDivId = "+ commentId +"]").hide();
+    }
+
+    function loadVideoInfo() {
+
+        $.ajax({
+            type: 'post',
+            url: '/videoData',
+            data: {
+                method: 'getVideoInfo',
+                videoId: videoId,
+            },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                let videoInfo = JSON.parse(data.videoInfo);
+                videoUserId = videoInfo.userId;
+                favoriteNum = videoInfo.videoFavoriteNum;
+                likeNum = videoInfo.videoLikeNum;
+                $("#commentUserFace").attr("src",user.imagePath);
+                $("#videoTitle").html(videoInfo.videoName + "_" + "枯木视频");
+                $("#uploadTime").html(timestampToTime(videoInfo.operateTime));
+                $("#videoName").html(videoInfo.videoName);
+                $("#videoType").html(videoInfo.channelName);
+                $("#pointNum").html(videoInfo.videoPointNum);
+                $("#likeNum").html(likeNum);
+                $("#favoriteNum").html(favoriteNum);
+                $("#videoDesc").html(videoInfo.videoDesc);
+                $("#video").attr("src", videoInfo.videoPath);
+                $("#videoCommentNum").html(videoInfo.videoCommentNum);
+                $("#videoUserName").html(videoInfo.userName);
+                $("#userDesc").html(videoInfo.userDesc);
+                loadRecommendVideo(videoInfo.channelId);
+
+                let tag = videoInfo.videoTag;
+
+                let tags = tag.split(",");
+
+                for (let i = 0; i < tags.length; i++) {
+                    $("#tagList").append(
+                        "<li class=\"tag\">" +
+                        "<a href=\"\">" + tags[i] + "</a>" +
+                        "</li>");
+                }
+            }
+        })
+    }
+
+    function loadRecommendVideo(channelId) {
+        $.ajax({
+            type: 'post',
+            url: '/videoData',
+            data: {
+                method: 'getRecommendVideo',
+                channelId: channelId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let videoList = JSON.parse(data.recommendVideo);
+
+                for (let i = 0; i < videoList.length; i++) {
+                    $("#recommendList").append(
+                        "<div class=\"video-page-card\">" +
+                        "<div class=\"card-box\">" +
+                        "<div class=\"pic-box\">" +
+                        "<div class=\"pic\">" +
+                        "<a href=\"video?" + videoList[i].videoId + "\">" +
+                        "<img src=\"" + videoList[i].imagePath + "\" width=\"168\" height=\"95\">" +
+                        "</a>" +
+                        "<span class=\"mask-video\"></span>" +
+                        "</div>" +
+                        "</div>" +
+                        "<div class=\"info\">" +
+                        "<a href=\"video?" + videoList[i].videoId + "\" class=\"title\">" + videoList[i].videoName + "</a>" +
+                        "<div class=\"count up\">" +
+                        "<a href=\"\">" + videoList[i].userName + "</a>" +
+                        "</div>" +
+                        "<div class=\"count\">" +
+                        "" + videoList[i].videoPointNum + "" +
+                        "播放" +
+                        "</div>" +
+                        "</div>" +
+                        "</div>" +
+                        "</div>")
+                }
+            }
+        })
+    }
+
+    function addHistory() {
+        $.ajax({
+            type: 'post',
+            url: '/history',
+            data: {
+                method: 'addHistory',
+                userId: user.userId,
+                videoId: videoId,
+                historyTime: (new Date()).getTime()
+            },
+            dataType: 'json',
+            success: function (data) {
+
+            }
+        })
+    }
+
+    function loadFollow() {
+        $.ajax({
+            type: 'post',
+            url: '/follow',
+            data: {
+                method: 'getFollow',
+                userId: user.userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let followInfo = JSON.parse(data.followInfo);
+
+                followed = followInfo.followedUser.split(',');
+                followFlag = false;
+
+                for (let i = 0; i < followed.length; i++) {
+                    if (videoUserId == followed[i]) {
+                        followFlag = true;
+                    }
+                }
+
+                if (followFlag === true) {
+                    $("#followBtn").addClass("following");
+                    $("#addSymbol").hide();
+                    $("#alreadyFollow").show();
+                } else {
+                    $("#followBtn").addClass("not-follow");
+                    $("#addSymbol").show();
+                    $("#alreadyFollow").hide();
+                }
+
+                $.ajax({
+                    type: 'post',
+                    url: '/follow',
+                    data: {
+                        method: 'getFollow',
+                        userId: videoUserId,
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+
+                        let followInfo = JSON.parse(data.followInfo);
+                        follower = followInfo.follower.split(',');
+                        followerNum = follower.length;
+                        $("#followNum").html(followerNum);
+                    }
+                })
+            }
+        })
+    }
+
+    function addFavorite(symbol) {
+        $.ajax({
+            type: 'post',
+            url: '/favorite',
+            data: {
+                method: 'addFavorite',
+                userId: user.userId,
+                videoId: videoId,
+                favoriteTime: (new Date()).getTime(),
+                symbol: symbol
+            },
+            dataType: 'json',
+            success: function (data) {
+
+            }
+        })
+    }
+
+    function addPointNum() {
+        $.ajax({
+            type: 'post',
+            url: '/videoData',
+            data: {
+                method: 'addVideoPointNum',
+                videoId: videoId,
+            },
+            dataType: 'json',
+            success: function (data) {
+
+            }
+        })
+    }
+
+    function deleteFavorite(symbol) {
+        $.ajax({
+            type: 'post',
+            url: '/favorite',
+            data: {
+                method: 'deleteFavorite',
+                userId: user.userId,
+                videoId: videoId,
+                symbol: symbol
+            },
+            dataType: 'json',
+            success: function (data) {
+
+            }
+        })
+    }
+
+    function loadFavorite() {
+        $.ajax({
+            type: 'post',
+            url: '/favorite',
+            data: {
+                method: 'getFavoriteList',
+                userId: user.userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let favoriteList = JSON.parse(data.favoriteList);
+                for (let i = 0; i < favoriteList.length; i++) {
+                    if (favoriteList[i].videoId == videoId) {
+                        $("#favoriteBtn").addClass("on");
+                    }
+                }
+            }
+        })
+    }
+
+    function likeVideo() {
+        $.ajax({
+            type: 'post',
+            url: '/videoData',
+            data: {
+                method: 'addVideoLikeNum',
+                videoId: videoId,
+            },
+            dataType: 'json',
+            success: function (data) {
+
+            }
+        })
+    }
+
+    $("#followBtn").click(function () {
+
+        let followedStr = '';
+        let followerStr = '';
+
+        if (followFlag === true) {
+            followFlag = false;
+            $("#followBtn").addClass("not-follow").removeClass("following");
+            $("#addSymbol").show();
+            $("#alreadyFollow").hide();
+
+            for (let i = 0; i < followed.length; i++) {
+                if (followed[i] != videoUserId) {
+                    followedStr += followed[i];
+                    followedStr += ',';
+                }
+            }
+            followedStr = followedStr.substring(0, followedStr.length - 1);
+            followed = followedStr.split(',');
+
+            for (let i = 0; i < follower.length; i++) {
+                if (follower[i] != user.userId) {
+                    followerStr += follower[i];
+                    followerStr += ',';
+                }
+            }
+            followerStr = followerStr.substring(0, followerStr.length - 1);
+            follower = followerStr.split(',');
+
+            if (followerNum * 1 < 10000) {
+                followerNum = followerNum * 1 - 1;
+                $("#followNum").html(followerNum);
+            }
+        } else {
+            followFlag = true;
+            $("#followBtn").addClass("following").removeClass("not-follow");
+            $("#addSymbol").hide();
+            $("#alreadyFollow").show();
+
+            followed.push(videoUserId);
+            for (let i = 0; i < followed.length; i++) {
+                followedStr += followed[i];
+                followedStr += ',';
+            }
+            followedStr = followedStr.substring(0, followedStr.length - 1);
+
+            follower.push(user.userId);
+            for (let i = 0; i < followed.length; i++) {
+                followerStr += followed[i];
+                followerStr += ',';
+            }
+            followerStr = followerStr.substring(0, followerStr.length - 1);
+
+            if (followerNum * 1 < 10000) {
+                followerNum = followerNum * 1 + 1;
+                $("#followNum").html(followerNum);
+            }
+        }
+
+        $.ajax({
+            type: 'post',
+            url: '/follow',
+            data: {
+                method: 'setFollowed',
+                userId: user.userId,
+                followedStr: followedStr,
+            },
+            dataType: 'json',
+            success: function (data) {
+            }
+        });
+
+        $.ajax({
+            type: 'post',
+            url: '/follow',
+            data: {
+                method: 'setFollower',
+                userId: videoUserId,
+                followerStr: followerStr,
+            },
+            dataType: 'json',
+            success: function (data) {
+            }
+        })
+    });
+
+    $("#favoriteBtn").click(function () {
+        if ($(this).hasClass("on")) {
+            if (favoriteNum < 10000) {
+                favoriteNum = favoriteNum - 1;
+                $("#favoriteNum").html(favoriteNum);
+            }
+            deleteFavorite("-");
+        } else {
+            if (favoriteNum < 10000) {
+                favoriteNum = favoriteNum + 1;
+                $("#favoriteNum").html(favoriteNum);
+            }
+            addFavorite("+");
+        }
+        $(this).toggleClass("on");
+    });
+
+    $("#reportBtn").click(function () {
+        alert("举报成功");
+    });
+
+    $("#likeBtn").click(function () {
+        likeVideo();
+        likeNum += 1;
+        $("#likeNum").html(likeNum);
+
+    })
+
+</script>
+</html>

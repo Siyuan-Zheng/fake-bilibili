@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('创作中心')"></head>
+<link th:href="@{/static/css/upload/upload.css}" rel="stylesheet">
+
+<body class="">
+<div id="app">
+    <div class="cc-header">
+        <div class="bili-header-m">
+            <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+        </div>
+    </div>
+
+    <div id="root">
+        <div class="cc-nav-wrp">
+            <div class="cc-nav">
+                <a href="/doUpload" class="logo" id="nav_home"></a>
+                <ul class="nav-wrp">
+                    <li id="nav_upload_manager">
+                        <a href="/doUpload" class="nav-item ">
+                            <i class="fontvt icon-ic_gaojian_manger"></i>
+                            <span>视频上传</span>
+                        </a>
+                    </li>
+                    <li id="nav_upload_fans">
+                        <a href="" class="nav-item active">
+                            <i class="fontvt icon-ic_fan_manger"></i>
+                            <span>视频管理</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="cc-body cc-body-link-tag-height">
+            <div class="cc-content-body">
+                <div class="page-wrp is-article cc-article-wrp" id="uploadList">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    $(function () {
+        loadUploadVideo();
+    });
+
+    function loadUploadVideo() {
+        $.ajax({
+            type: 'post',
+            url: '/videoData',
+            data: {
+                method: 'getVideoByUserId',
+                userId: user.userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data !== null && data !== undefined && data !== ""){
+                    if (data.msg === "ok"){
+                        let uploadList = JSON.parse(data.videoList);
+                        $("#uploadList").empty();
+                        for (let i = 0; i < uploadList.length; i++){
+                            let videoName = uploadList[i].videoName;
+                            let videoPointNum = uploadList[i].videoPointNum;
+                            let videoCommentNum = uploadList[i].videoCommentNum;
+                            let videoLikeNum = uploadList[i].videoLikeNum;
+                            let videoFavoriteNum = uploadList[i].videoFavoriteNum;
+                            let videoId = uploadList[i].videoId;
+                            let imagePath = uploadList[i].imagePath;
+                            let channelName = uploadList[i].channelName;
+
+                            $("#uploadList").append(
+                                "<div class=\"article-card clearfix\">" +
+                                "<a target=\"_blank\" href=\"video?"+ videoId +"\" class=\"cover-wrp\">" +
+                                "<img src=\""+ imagePath +"\" class=\"\">" +
+                                "</a>" +
+                                "<div class=\"meta-wrp\">" +
+                                "<div class=\"meta-title\">" +
+                                "<span class=\"typename\">"+ channelName +"</span>" +
+                                "<a target=\"_blank\" href=\"video?"+ videoId +"\" class=\"name ellipsis\">"+ videoName +"</a>" +
+                                "</div>" +
+                                "<div class=\"meta-view\">" +
+                                "<a href='videoEdit?"+ videoId +"' class=\"bili-btn ok\">编辑</a>" +
+                                "<a href=\"javascript:void(0)\" onclick='deleteVideo(\""+ videoId +"\")' class=\"bili-btn plain\">删除</a>" +
+                                "</div>" +
+                                "<div class=\"meta-footer clearfix\">" +
+                                "<div title=\"播放\" class=\"click view-stat\">" +
+                                "<i class=\"fontvt icon-bofang\"></i>" +
+                                "<span class=\"icon-text click-text\">"+ videoPointNum +"</span>" +
+                                "</div>" +
+                                "<div title=\"评论\" class=\"comment view-stat\">" +
+                                "<i class=\"fontvt icon-ic_comment\"></i>" +
+                                "<span class=\"icon-text\">"+ videoCommentNum +"</span>" +
+                                "</div>" +
+                                "<div title=\"收藏\" class=\"favorite view-stat\">" +
+                                "<i class=\"fontvt icon-favorite1\"></i>" +
+                                "<span class=\"icon-text\">"+ videoFavoriteNum +"</span>" +
+                                "</div>" +
+                                "<div title=\"点赞\" class=\"like view-stat\">" +
+                                "<i class=\"fontvt icon-ic_like\"></i>" +
+                                "<span class=\"icon-text\">"+ videoLikeNum +"</span>" +
+                                "</div>" +
+                                "</div>" +
+                                "</div>" +
+                                "</div>"
+                            )
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    function deleteVideo(videoId) {
+        let flag = confirm("确认删除该视频？");
+
+        if (flag === true){
+            $.ajax({
+                type: 'post',
+                url: '/videoManageData',
+                data: {
+                    method: 'setVideoStatus',
+                    videoId: videoId,
+                    videoStatus: 3,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.msg === "ok"){
+                        alert("删除成功");
+                        loadUploadVideo();
+                    } else {
+                        alert("删除失败");
+                    }
+                }
+            })
+        }
+    }
+
+</script>
+</html>

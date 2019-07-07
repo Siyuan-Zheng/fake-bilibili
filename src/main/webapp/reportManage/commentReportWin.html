@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+	<body>
+		<div class="win-con">
+			<p class="del-confirm">是否确认封禁该信息？</p>
+			<div class="btn-box clearfix">
+				<button class="layui-btn left">确定</button>
+				<button class="layui-btn right qx">取消</button>
+			</div>
+		</div>
+	</body>
+	<script>
+		layui.use(['layer','form','table','element'], function(){
+		  	var layer = layui.layer
+		  	,form = layui.form
+		  	, table = layui.table
+		  	,element = layui.element
+
+		  	console.log('eree');
+			//弹窗按钮关闭
+		  	$('.qx').click(function(){
+				var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+				parent.layer.close(index); //再执行关闭
+		  	});
+
+
+		});
+	</script>
+</html>

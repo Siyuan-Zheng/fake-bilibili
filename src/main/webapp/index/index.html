@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频')"></head>
+
+    <link rel="stylesheet" th:href="@{/static/css/common/top.css}">
+
+<body>
+<div class="top" id="top">
+    <div class="header"></div>
+
+    <div class="title"></div>
+
+</div>
+
+<div class="navigationBar"></div>
+
+<!-- 中部 -->
+<div class="index-container" id="channel">
+
+    <div class="container-top">
+        <div class="b-l">
+            <div class="rotation">
+                <!-- 图片 -->
+                <ul>
+                    <li><a href="#"><img src="/static/images/center/huna/5.jpg" id="topic-img1"></a></li>
+                    <li><a href="#"><img src="/static/images/center/huna/5.jpg" id="topic-img2"></a></li>
+                </ul>
+                <!-- 文字 -->
+                <ul class="category_move">
+                    <li id="category-span1"><span>目标！星辰大海！</span></li>
+                    <li id="category-span2"><span>愉♂悦</span></li>
+                </ul>
+                <!-- 图标 -->
+                <ul class="topic_slider">
+                    <li id="topic_slider1" onclick="rotation(1)"></li>
+                    <li id="topic_slider2" onclick="rotation(2)"></li>
+                </ul>
+                <!-- 更多 -->
+                <a href="#" class="more-topic">
+                    更多
+                    <i></i>
+                </a>
+            </div>
+        </div>
+        <div class="b-r">
+            <div class="top-list-wrapper">
+                <ul class="top-list clearfix" id="randomVideo"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script th:src="@{/static/js/base.core.js}"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $(".header").load("/common/header.html");
+        $(".title").load("/common/topTitle.html");
+        $(".navigationBar").load("/common/topNavigationBar.html");
+
+        loadChannel();
+        loadRandomVideo()
+    });
+
+
+    function loadRandomVideo() {
+
+        let str = '';
+
+        $.ajax({
+            type: 'post',
+            url: '/indexData',
+            data: {
+                method: 'getRandomVideo',
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                let randomVideoList = JSON.parse(data.randomVideo);
+
+                for (let i = 0; i < randomVideoList.length; i++) {
+
+                    let videoId = randomVideoList[i].videoId;
+                    let videoName = randomVideoList[i].videoName;
+                    let videoPicPath = randomVideoList[i].imagePath;
+                    let upUserName = randomVideoList[i].userName;
+                    let videoPointNum = randomVideoList[i].videoPointNum;
+
+                    str += (
+                        "<li>" +
+                        "   <div class=\"v-item\">" +
+                        "       <a href=\"video?"+ videoId +"\">" +
+                        "           <div class=\"preview\">" +
+                        "               <img src=\"" + videoPicPath + "\" alt=\"" + videoName + "\">" +
+                        "           </div>" +
+                        "           <div class=\"mask\"></div>" +
+                        "           <div class=\"info\">" +
+                        "               <div class=\"tt\">" + videoName + "</div>" +
+                        "               <p class=\"up\">" + upUserName + "</p>" +
+                        "               <p class=\"indexPlay\">播放："+ videoPointNum +"</p>" +
+                        "           </div>" +
+                        "       </a>" +
+                        "   </div>" +
+                        "</li>"
+                    );
+                }
+                $("#randomVideo").append(str);
+            }
+        })
+
+    }
+
+    function loadChannel() {
+
+        let str = "";
+
+        $.ajax({
+            type: 'post',
+            url: '/channelData',
+            async: false,
+            data: {
+                method: 'getChannelList',
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                let channelList = JSON.parse(data.channelList);
+
+                for (let i = 0; i < channelList.length; i++) {
+                    str += (
+                        "<div class=\"b-section-body\">" +
+                        "   <div class=\"bsb-l\">" +
+                        "       <div class=\"bsb-head\">" +
+                        "           <span class=\"bsb-head-i\"></span>" +
+                        "           <span class=\"bsb-head-t\">" +
+                        "               <a href=\"channel?"+ channelList[i].channelId +"\">" +
+                        "                   <h2>" + channelList[i].channelName + "</h2>" +
+                        "               </a>" +
+                        "           </span>" +
+                        "           <ul class=\"b-slt-tab\">" +
+                        "               <li class=\"on on-one\">" +
+                        "                   <span class=\"b-tab-text\">有新动态</span>" +
+                        "               </li>" +
+                        "               <li>" +
+                        "                   <span class=\"b-tab-text\">最新投稿</span>" +
+                        "               </li>" +
+                        "           </ul>" +
+                        "           <div class=\"b-right\">" +
+                        "               <div class=\"b-info\">" +
+                        "                   <span class=\"icon-refresh\"></span>" +
+                        "                   <em>点我刷新</em>" +
+                        "               </div>" +
+                        "               <div class=\"b-link-more\">" +
+                        "                   <a href=\"channel?"+ channelList[i].channelId +"\">更多" +
+                        "                       <span class=\"b-icon-arrow-r\"></span>" +
+                        "                   </a>" +
+                        "               </div>" +
+                        "           </div>" +
+                        "       </div>" +
+                        "       <div class=\"bsb-body\">" +
+                        "           <ul>"
+                    );
+
+                    let ajax = $.ajax({
+                        type: 'post',
+                        url: '/indexData',
+                        async: false,
+                        data: {
+                            method: 'getNewVideo',
+                            channelId: channelList[i].channelId,
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+
+                            let newVideoList = JSON.parse(data.newVideo);
+
+                            for (let i = 0; i < newVideoList.length; i++) {
+
+                                let imgPath = newVideoList[i].imagePath;
+                                let letVideoId = newVideoList[i].videoId;
+                                let videoPointNum = newVideoList[i].videoPointNum;
+                                let videoCommentNum = newVideoList[i].videoCommentNum;
+                                let videoId = newVideoList[i].videoId;
+
+                                str += (
+                                    "<li>" +
+                                    "   <div class=\"v\">" +
+                                    "       <a href=\"video?"+ letVideoId +"\" title=\"" + newVideoList[i].videoName + "\">" +
+                                    "           <img src=\""+ imgPath +"\" alt=\"" + newVideoList[i].videoName + "\">" +
+                                    "           <a href=\"video?"+ videoId+"\" title=\"" + newVideoList[i].videoName + "\">" +
+                                    "               <div class=\"v-t\">" + newVideoList[i].videoName + "</div>" +
+                                    "               <div class=\"i\">" +
+                                    "                   <span><em class=\"vi-1\"></em>"+ videoPointNum +"</span>" +
+                                    "                   <span><em class=\"vi-2\"></em>"+ videoCommentNum +"</span>" +
+                                    "               </div>" +
+                                    "           </a>" +
+                                    "       </a>" +
+                                    "   </div>" +
+                                    "</li>"
+                                )
+                            }
+
+                            str += (
+                                "</ul>" +
+                                "</div>" +
+                                "</div>" +
+                                "<div class=\"bsb-r\">" +
+                                "   <div class=\"bsr-head\">" +
+                                "       <div class=\"brh-left\">" +
+                                "           <span><h3>排行</h3></span>" +
+                                "       </div>" +
+                                "   <div class=\"brh-right\"></div>" +
+                                "</div>" +
+                                "<div class=\"bsr-body\">" +
+                                "   <div class=\"brb-body\">" +
+                                "       <ul class=\"rlist\">"
+                            );
+                        }
+                    });
+
+                    $.when(ajax).done(function () {
+                        $.ajax({
+                            type: 'post',
+                            url: '/indexData',
+                            async: false,
+                            data: {
+                                method: 'getTopVideo',
+                                channelId: channelList[i].channelId,
+                            },
+                            dataType: 'json',
+                            success: function (data) {
+                                let topVideoList = JSON.parse(data.topVideo);
+
+                                str += (
+                                    "<li class=\"rlist1\">" +
+                                    "   <i class=\"number-n1 number-n\">1</i>" +
+                                    "   <a href=\"video?"+ topVideoList[0].videoId +"\" title=\"" + topVideoList[0].videoName + "\">" +
+                                    "       <img src=\""+ topVideoList[0].imagePath +"\" alt=\"" + topVideoList[0].videoName + "\">" +
+                                    "       <span>" + topVideoList[0].videoName + "</span>" +
+                                    "           <i>播放："+ topVideoList[0].videoPointNum +"</i>" +
+                                    "   </a>" +
+                                    "</li>"
+                                );
+
+                                for (let i = 1; i < topVideoList.length; i++) {
+
+                                    let videoId = topVideoList[i].videoId;
+
+                                    str += (
+                                        "<li class=\"rlist2\">" +
+                                        "   <i class=\"number-n1 number-n\">"+(i+1)+"</i>" +
+                                        "   <a href=\"video?"+ videoId +"\" title=\"" + topVideoList[i].videoName + "\">" + topVideoList[i].videoName + "</a>" +
+                                        "</li>"
+                                    );
+                                }
+                                str += (
+                                    "</ul>" +
+                                    "</div>" +
+                                    "</div>" +
+                                    "</div>" +
+                                    "</div>" +
+                                    "</div>"
+                            );
+                            }
+                        });
+                    })
+                }
+                $("#channel").append(str);
+            }
+        });
+    }
+
+</script>
+
+</html>

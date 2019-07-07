@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="common(title)">
+    <title th:text="${title}"></title>
+    <meta charset="UTF-8">
+    <script th:src="@{/static/js/jquery-3.3.1.js}"></script>
+    <script th:src="@{/static/js/jquery.cookie.js}"></script>
+    <script th:src="@{/static/js/layui/layui.js}" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/js/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/static/js/jquery.nicescroll.js}"></script>
+    <script th:src="@{/static/js/md5.js}" type="text/javascript" charset="utf-8"></script>
+    <script th:src="@{/static/js/common.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+        var ctxPath = /*[[@{/}]]*/ '';
+        var user = [[${session.USER_SESSION_KEY}]];
+
+        let userType;
+        let account;
+        let autoUser = JSON.parse($.cookie("user_cookie"));
+
+        if (autoUser.phoneNum == null){
+            userType = "mail";
+            account = autoUser.mail;
+        } else {
+            userType = "phone";
+            account = autoUser.phoneNum;
+        }
+
+        // $.ajax({
+        //     type: 'post',
+        //     url: '/loginData',
+        //     data: {
+        //         method: 'autoLogin',
+        //         accountType: userType,
+        //         account: account,
+        //         password: autoUser.password,
+        //     },
+        //     dataType: 'json',
+        //     async: false,
+        //     success: function (data) {
+        //
+        //     }
+        // });
+
+        /*]]>*/
+
+
+    </script>
+</head>
+</html>

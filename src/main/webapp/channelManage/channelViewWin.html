@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+<body>
+<div class="win-con main-win clearfix">
+    <form class="layui-form" action="">
+        <div id="">
+            <div class="win-half left">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分区名称：</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" lay-verify="title" autocomplete="off" class="layui-input" id="channelName" readonly>
+                    </div>
+                </div>
+                <div class="layui-form-item img-upload">
+                    <label class="layui-form-label">分区图标：</label>
+                    <div class="layui-input-block clearfix">
+                        <input type="file" class="fileUpload" name="" id="imageInput" value="" style="display: none;"/>
+                        <div class="img-box img-click left">
+                            <img src="/static/images/channelManage/up_icon.png" alt="" id="image" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="win-half left">
+                <div class="layui-form-item big-text">
+                    <label class="layui-form-label">分区描述：</label>
+                    <div class="layui-input-block">
+                        <textarea placeholder="" class="layui-textarea" name="desc" id="channelDesc" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="btn-box clearfix">
+        <button class="layui-btn left qd">确定</button>
+        <button class="layui-btn right qx">取消</button>
+    </div>
+</div>
+</body>
+<script>
+    let channelId = parent.selectChannel[0].channelId;
+    let channelName = parent.selectChannel[0].channelName;
+
+    $(function () {
+        init();
+    });
+
+    function init(){
+
+        $.ajax({
+            type: 'post',
+            url: '/channelManageData',
+            data: {
+                method: 'getChannelInfo',
+                channelId: channelId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let channelInfo = JSON.parse(data.channelInfo);
+                console.log(channelInfo);
+                $("#image").attr("src",channelInfo.imagePath);
+                $("#channelName").val(channelInfo.channelName);
+                $("#channelDesc").val(channelInfo.channelDesc);
+            }
+        })
+    }
+
+    layui.use(['layer', 'form', 'table', 'element'], function () {
+        var layer = layui.layer
+            , form = layui.form
+            , table = layui.table
+            , element = layui.element;
+
+        //弹窗按钮关闭
+        $('.qx').click(function () {
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关闭
+        });
+        $('.qd').click(function () {
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关闭
+        });
+    });
+</script>
+</html>

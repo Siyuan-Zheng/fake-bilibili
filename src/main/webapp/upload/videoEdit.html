@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('创作中心')"></head>
+<link th:href="@{/static/css/upload/upload.css}" rel="stylesheet">
+<body class="">
+<div id="app" >
+    <div class="cc-header">
+        <div class="bili-header-m">
+            <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+        </div>
+    </div>
+
+    <div id="root">
+        <div class="cc-nav-wrp">
+            <div class="cc-nav">
+                <a href="/doUpload" class="logo" id="nav_home"></a>
+                <ul class="nav-wrp">
+                    <li id="nav_upload_manager">
+                        <a href="/doUpload" class="nav-item ">
+                            <i class="fontvt icon-ic_gaojian_manger"></i>
+                            <span>视频上传</span>
+                        </a>
+                    </li>
+                    <li id="nav_upload_fans">
+                        <a href="/uploadManage" class="nav-item active">
+                            <i class="fontvt icon-ic_fan_manger"></i>
+                            <span>视频管理</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="cc-body cc-body-link-tag-height">
+            <div class="iframe-comp-container cc-content-body">
+                <div>
+                    <iframe width="100%" height="100%" src="videoEditFrame" frameborder="0" name="videoUpload"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    function getParentUrlPara() {
+        return getUrlPara();
+    }
+</script>
+</html>

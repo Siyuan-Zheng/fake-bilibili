@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+	<body>
+	<div class="win-con">
+		<p class="del-confirm">是否确认删除账号“<span id="userName"></span>”？</p>
+		<div class="btn-box clearfix">
+			<button class="layui-btn left qd">确定</button>
+			<button class="layui-btn right qx">取消</button>
+		</div>
+	</div>
+	</body>
+<script type="text/javascript" th:inline="javascript">
+		let userId = parent.selectUser[0].userId;
+		let userName = parent.selectUser[0].userName;
+
+		$("#userName").html(userName);
+
+
+		layui.use(['layer','form','table','element'], function(){
+		  	let layer = layui.layer
+		  	,form = layui.form
+		  	, table = layui.table
+		  	,element = layui.element;
+
+
+			$(".qd").click(function () {
+				$.ajax({
+					type: 'post',
+					url: '/userManageData',
+					data: {
+						method: 'setUserStatus',
+						userId: userId,
+						userStatus: 3,
+					},
+					dataType: 'json',
+					success: function (data) {
+						if (data.msg === 'ok'){
+							parent.reloadNav();
+							alert("操作成功");
+							let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+							parent.layer.close(index); //再执行关闭
+						}else {
+							alert("操作失败");
+							let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+							parent.layer.close(index); //再执行关闭
+						}
+					}
+				})
+			});
+
+			//弹窗按钮关闭
+		  	$('.qx').click(function(){
+				let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+				parent.layer.close(index); //再执行关闭   
+		  	});
+
+		  	
+		});
+	</script>
+</html>

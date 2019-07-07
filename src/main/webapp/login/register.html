@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频网 - 注册')"></head>
+
+<link rel="shortcut icon" th:href="@{/static/images/favicon.ico}">
+<link rel="stylesheet" th:href="@{/static/css/login/login.css}">
+<body>
+
+<div class="topHeader"></div>
+
+<div class="footContent">
+    <div class="registerContent">
+
+        <div class="lin">
+            <div class="tit">
+                <img src="/static/images/login/t1.png" alt="注册">
+            </div>
+        </div>
+
+        <div class="center_title">
+            <div class="registerUserNameDiv">
+                <input type="text" class="registerUserNameInput" placeholder="昵称（例：时雨）">
+                <span class="registerWarning" id="userNameWarning"></span>
+            </div>
+            <div class="registerPasswordDiv">
+                <input type="password" class="registerPasswordInput" placeholder="密码（6-16个字母，区分大小写）">
+                <span class="registerWarning" id="passwordWaring"></span>
+            </div>
+            <div class="registerPhoneAndMailDiv">
+                <input type="text" class="registerPhoneAndMailInput" placeholder="填写常用手机号">
+                <a class="registerUserMailA">用邮箱注册></a>
+                <span class="registerWarning1" id="accountWarning"></span>
+            </div>
+            <div class="registerCaptchaDiv">
+                <input type="text" placeholder="手机验证码" id="registerCaptchaInput">
+                <a class="registerCaptchaA">点击获取</a>
+                <span class="registerWarning"></span>
+                <label>
+                    <input type="checkbox" id="rigsterCheckBox">
+                </label>
+                <label>
+                我已同意
+                <a style="cursor: pointer;">《枯木短视频用户使用协议》</a>
+                和
+                <a style="cursor: pointer;">《枯木短视频社区规范》</a>
+                </label>
+            </div>
+            <div class="nextStep">
+                <a id="registerButton">注 册</a>
+                <span>
+                    <a href="/login/login.html">已有账号，直接登录></a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    let userAccountType = "phone";
+    let validAccount = false;
+    let validUserName = false;
+    let validPassword = false;
+
+    $(function () {
+        $(".topHeader").load("/common/loginHeader.html");
+        $("#footer").load("/common/footer.html");
+    });
+
+    $(".registerUserNameInput").bind("blur input propertychange",function(){
+        let userName = $(this).val();
+        $.ajax({
+            type: 'post',
+            url: '/loginData',
+            data: {
+                method: 'isDuplicate',
+                userName: userName,
+                accountType: userAccountType
+            },
+            success: function (data) {
+
+
+            }
+        });
+
+
+        if (userName.length < 2) {
+            $("#userNameWarning").html("用户名不能少于2位");
+        }else if (userName.length > 16){
+            $("#userNameWarning").html("用户名不能超过16位");
+        }else {
+            $("#userNameWarning").html("");
+            validUserName = true;
+        }
+    });
+
+    $(".registerPasswordInput").bind("blur input propertychange",function(){
+        let password = $(this).val();
+
+        if (!password.match(/^.{6,16}$/)) {
+            $("#passwordWaring").html("密码为6到18为字母和数字组合");
+        }else if (!password.match(/^(?![a-zA-z]+$)(?!\d+$)(?![~`!@#$%^&()*\-=_+\\[\]{};:'",./<>?|]+$)[a-zA-Z\d~`!@#$%^&()*\-=_+\\[\]{};:'",./<>?|]+$/)){
+            $("#passwordWaring").html("密码不能为纯数字或纯字母");
+        }else {
+            $("#passwordWaring").html("");
+            validPassword = true;
+        }
+    });
+
+    $(".registerPhoneAndMailInput").bind("blur input propertychange",function(){
+        let account = $(this).val();
+
+        if (userAccountType === "phone"){
+            if (!account.match(/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/)){
+                $("#accountWarning").html("请输入正确的手机号");
+            } else {
+                $("#accountWarning").html("");
+                validAccount = true;
+            }
+        } else if (userAccountType === "mail"){
+            if (!account.match(/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/)){
+                $("#accountWarning").html("请输入正确的邮箱");
+            } else {
+                $("#accountWarning").html("");
+                validAccount = true;
+            }
+        }
+    });
+
+    $("#registerCaptchaInput").bind("blur input propertychange",function(){
+
+    });
+
+    $(".registerUserMailA").click(function () {
+        if ($(this).html() === "用手机号注册&gt;"){
+            $(".registerPhoneAndMailInput").attr("placeholder","填写常用手机号").val("");
+            $(this).html("用邮箱注册>");
+            userAccountType = "phone";
+        }else if($(this).html() === "用邮箱注册&gt;"){
+            userAccountType = "mail";
+            $(".registerPhoneAndMailInput").attr("placeholder","填写常用邮箱").val("");
+            $(this).html("用手机号注册>")
+        }
+    });
+
+    $("#registerButton").click(function () {
+        if (validUserName === true && validPassword === true && validAccount === true){
+
+            let userName = $(".registerUserNameInput").val();
+            let password = hex_md5($(".registerPasswordInput").val()).toUpperCase();
+            let account = $(".registerPhoneAndMailInput").val();
+
+            $('#registerButton').html("正在登陆");
+            $.ajax({
+                type: 'post',
+                url: '/loginData',
+                data: {
+                    method: 'register',
+                    account: account,
+                    password: password,
+                    userName: userName,
+                    accountType: userAccountType
+                },
+                success: function (data) {
+                    if (JSON.parse(data).msg == 'ok') {
+                        window.location.href = "index";
+                    }
+                },
+                error: function (xhr, errorType, error) {
+                },
+                complete: function (xhr, status) {
+                }
+            });
+        }
+
+    })
+
+</script>
+
+</html>

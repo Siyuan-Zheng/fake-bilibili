@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频')"></head>
+<body th:fragment="commonMenu">
+<div>
+    <div id="primary_menu" class="primary-menu border-b">
+        <ul class="nav-menu" id="channelList">
+            <li class="home">
+                <a href="/index">
+                <div class="nav-name">首页</div>
+            </a>
+                <ul class="sub-nav"></ul>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(function () {
+        loadChannel();
+    });
+
+    function loadChannel() {
+
+        $.ajax({
+            type: 'post',
+            url: '/channelData',
+            data: {
+                method: 'getChannelList',
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                let channelList = JSON.parse(data.channelList);
+
+                for (let i = 0; i < channelList.length; i++) {
+
+                    $("#channelList").append(
+                        "            <li class=\"channel\">\n" +
+                        "                <a href=\"channel?"+ channelList[i].channelId +"\">\n" +
+                        "                <div class=\"nav-name\">"+ channelList[i].channelName +"</div>\n" +
+                        "            </a>\n" +
+                        "            </li>"
+                    )
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

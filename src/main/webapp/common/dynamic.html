@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/static/css/common/dynamic.css">
+    <script src="/static/js/jquery-3.3.1.js"></script>
+    <script src="/static/js/jquery.cookie.js"></script>
+    <title>动态</title>
+</head>
+<body>
+<div id="app-container">
+    <div data-v-9795abb4="" class="dynamic-iframe">
+        <div data-v-9795abb4="" class="dynamic-m">
+            <div class="dyn_menu">
+
+            </div>
+            <div class="dyn_list_wrapper view-video" style="height: 304px;">
+                <ul class="dyn_list">
+                    <span id="headerDynamic"></span>
+                    <li class="no-data">(´・ω・｀) 点击下方按钮查看全部动态</li>
+                </ul>
+            </div>
+            <div class="wnd_bottom video">
+                <div class="r-l">
+                    <a target="_blank" href="/dynamic" class="read-more">
+                        <span>查看全部</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+
+    let currentUser = JSON.parse($.cookie("user_cookie"));
+
+
+    $(function () {
+        loadDynamic();
+    });
+
+    function loadDynamic() {
+        $.ajax({
+            type: 'post',
+            url: '/dynamicData',
+            data: {
+                method: 'getDynamicVideoList',
+                userId: currentUser.userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let dynamicList = JSON.parse(data.dynamicList);
+
+                for (let i = 0; i < dynamicList.length; i++) {
+
+
+                    let videoName = dynamicList[i].videoName;
+                    let userName = dynamicList[i].userName;
+                    let videoId = dynamicList[i].videoId;
+                    let imagePath = dynamicList[i].imagePath;
+
+                    $("#headerDynamic").append("<li class=\"d-data\">" +
+                        "<div class=\"preview v\">" +
+                        "<a href=\"/video?"+ videoId +"\" title=" + videoName + " class=\"small-img\" style=\"background-image: url("+ imagePath +");\" target='_parent'>" +
+                        "</a>" +
+                        "</div>" +
+                        "<div class=\"r\">" +
+                        "<div class=\"title\">" +
+                        "<a href=\"/personalCenter\" target='_parent'>" + userName + "</a>" +
+                        "<span>投稿了</span>" +
+                        "</div>" +
+                        "<div class=\"info\">" +
+                        "<a href=\"/video?"+ videoId +"\" title=" + videoName + " target='_parent'>" + videoName + "</a>" +
+                        "</div>" +
+                        "</div>" +
+                        "</li>");
+                }
+            }
+        })
+    }
+
+</script>
+</html>

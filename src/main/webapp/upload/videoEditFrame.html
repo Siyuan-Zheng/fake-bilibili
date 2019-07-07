@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('创作中心')"></head>
+<link th:href="@{/static/css/upload/uploadFrame.css}" rel="stylesheet">
+
+<body>
+
+<div videoFrameDiv1="" id="app" class="canary-container">
+    <div videoUploadDiv="" videoFrameDiv1="" class="upload-v2-container">
+
+        <div nextStep="" videoUploadDiv="" class="upload-v2-step2-container" style="display: block;">
+            <div nextStep="" class="file-content-v2-container">
+                <div videoPreview="" class="normal-v2-container">
+                    <div videoPreview="" class="normal-title-wrp">
+                        <h1 videoPreview="">基本信息</h1>
+                    </div>
+                    <div listV="" videoPreview="" id="type-list-v2-container" class="type-list-v2-container">
+                        <div imagePreviewDiv="" listV="" class="section-title-v2-container">
+                            <p imagePreviewDiv="" class="section-title-v2-deg">*</p>
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">分区</h3>
+                        </div>
+                        <div listV="" class="type-list-v2-selector-wrp">
+                            <div selectV="" listV="" class="select-box-v2-container">
+                                <div selectV="" class="select-box-v2-controller" id="typeSelect">
+                                    <p selectV="" class="select-item-cont" id="channelName">点击选择</p>
+                                    <i selectV="" class="selebox-box-v2-drop-icon iconfont icon-ic_collapse"></i>
+                                </div>
+
+                                <div typeSeleteX="" class="drop-cascader-container" style="top: 50px; display: none">
+                                    <div typeSeleteX="" class="drop-cascader-pre-wrp" id="channelList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div videoPreview="" class="ui-v2-normal-line-white-divide"></div>
+                    <div data-v-b3b70444="" videoPreview="" class="content-title-v2-container">
+                        <div imagePreviewDiv="" data-v-b3b70444="" class="section-title-v2-container">
+                            <p imagePreviewDiv="" class="section-title-v2-deg">*</p>
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">标题</h3>
+                        </div>
+                        <div data-v-b3b70444="" class="content-title-v2-input-wrp">
+                            <div inputX="" data-v-b3b70444="" class="input-box-v2-1-container">
+                                <div inputX="" class="input-box-v2-1-instance">
+                                    <input inputX="" type="text" maxlength="80" placeholder="请输入稿件标题"
+                                           class="input-box-v2-1-val" id="videoName">
+                                </div>
+                                <p inputX="" class="input-box-v2-1-max-tip">0/80</p></div>
+                        </div>
+                    </div>
+                    <div videoPreview="" class="ui-v2-normal-line-white-divide"></div>
+                    <div tagD="" videoPreview="" id="content-tag-v2-container" class="content-tag-v2-container">
+                        <div imagePreviewDiv="" tagD="" class="section-title-v2-container">
+                            <p imagePreviewDiv="" class="section-title-v2-deg">*</p>
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">标签</h3>
+                        </div>
+                        <div tagD="" class="content-tag-v2-input-wrp">
+                            <div inputX="" tagD="" class="input-box-v2-1-container">
+
+                                <div tagD="" inputX="" class="content-tag-v2-pre-wrp" id="tagContent">
+                                </div>
+
+                                <div tagD="" inputX="" class="content-tag-v2-pre-wrp"></div>
+                                <div inputX="" class="input-box-v2-1-instance">
+                                    <input inputX="" type="text" maxlength="20" placeholder="按回车键Enter创建标签" class="input-box-v2-1-val" id="tagInput">
+                                </div>
+                                <p tagD="" inputX="" class="content-tag-v2-last-wrp">还可以添加<span id="tagLeft">5</span>个标签</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div videoPreview="" class="ui-v2-normal-line-white-divide"></div>
+                    <div contentX="" videoPreview="" class="content-desc-v2-container">
+                        <div imagePreviewDiv="" contentX="" class="section-title-v2-container">
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">简介</h3>
+                        </div>
+                        <div contentX="" class="content-desc-v2-text-wrp">
+                            <div textAreaX="" contentX="" class="text-area-box-v2-container">
+                                <textarea textAreaX="" maxlength="250" class="text-area-box-v2-val placeholder-style" id="videoDesc"></textarea>
+                                <p textAreaX="" class="text-area-box-v2-max-tip">0/250</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div buttonX="" class="submit-button-group-v2-container">
+                    <span buttonX="" class="submit-btn-group-add" id="uploadBtn">保存更改</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+
+    let videoId = parent.getParentUrlPara();
+
+    let tagLeftNum = 5;
+
+    let selectChannelId;
+
+    let tags = [];
+
+    $(function () {
+        loadChannel();
+        loadVideoInfo();
+    });
+
+    function removeTag(tagName) {
+        tagLeftNum += 1;
+        $("#tagLeft").html(tagLeftNum);
+        $("#"+tagName).remove();
+
+        tags.splice(tags.indexOf(tagName), 1);
+    }
+
+    function loadVideoInfo() {
+        $.ajax({
+            type: 'post',
+            url: '/videoData',
+            data: {
+                method: 'getVideoInfo',
+                videoId: videoId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data !== null && data !== undefined && data !== ""){
+                    if (data.msg === "ok"){
+                        let videoInfo = JSON.parse(data.videoInfo);
+                        console.log(videoInfo);
+
+                        $("#channelName").html(videoInfo.channelName);
+                        $("#videoName").val(videoInfo.videoName);
+                        $("#videoDesc").val(videoInfo.videoDesc);
+
+                        let tagStr = videoInfo.videoTag;
+
+                        if (tagStr !== null && tagStr !== undefined && tagStr !== ""){
+                            let tag = tagStr.split(",");
+
+                            tagLeftNum = tagLeftNum - tag.length;
+                            $("#tagLeft").html(tagLeftNum);
+
+
+                            for (let i = 0; i < tag.length; i++) {
+                                $("#tagContent").append("<div tagX=\"\" tagD=\"\" class=\"label-item-v2-container\" inputX=\"\" id='"+ tag[i] +"'>" +
+                                    "<p tagX=\"\" class=\"label-item-v2-content\">"+ tag[i] +"</p>" +
+                                    "<i tagX=\"\" class=\"label-item-v2-close iconfont icon-guanbi\" onclick='removeTag(\""+ tag[i] +"\")'></i>" +
+                                    "</div>");
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    function loadChannel(){
+        $.ajax({
+            type: 'post',
+            url: '/channelData',
+            data: {
+                method: 'getChannelList',
+            },
+            dataType: 'json',
+            success: function (data) {
+                let channelList = JSON.parse(data.channelList);
+
+                for (let i = 0; i < channelList.length; i++){
+                    $("#channelList").append("<div typeSeleteX=\"\" class=\"drop-cascader-pre-item\" onclick='selectChannel(\""+ channelList[i].channelName +"\"\,\""+ channelList[i].channelId +"\")'>" +
+                        "<p typeSeleteX=\"\" class=\"pre-item-content\">"+ channelList[i].channelName +"</p>" +
+                        "</div>")
+                }
+            }
+        })
+    }
+
+    function selectChannel(channelName, channelId){
+        $("#typeSelect").toggleClass("select-box-v2-controller-selected");
+        $(".drop-cascader-container").hide();
+
+        $("#channelName").html(channelName);
+        selectChannelId = channelId;
+    }
+
+
+    $("#typeSelect").click(function () {
+        if ($(this).hasClass("select-box-v2-controller-selected")){
+            $(this).toggleClass("select-box-v2-controller-selected");
+            $(".drop-cascader-container").hide();
+        } else {
+            $(".drop-cascader-container").show();
+            $(this).toggleClass("select-box-v2-controller-selected");
+        }
+    });
+
+    $("#tagInput").keypress(function (e) {
+        if (e.which == 13) {
+
+            if (tagLeftNum <= 0){
+                alert("不能再多了");
+            } else {
+                tagLeftNum -= 1;
+                $("#tagLeft").html(tagLeftNum);
+                let tag = $("#tagInput").val();
+                tags.push(tag);
+                $("#tagContent").append("<div tagX=\"\" tagD=\"\" class=\"label-item-v2-container\" inputX=\"\" id='"+ tag +"'>" +
+                    "<p tagX=\"\" class=\"label-item-v2-content\">"+ tag +"</p>" +
+                    "<i tagX=\"\" class=\"label-item-v2-close iconfont icon-guanbi\" onclick='removeTag(\""+ tag +"\")'></i>" +
+                    "</div>");
+
+                $("#tagInput").val('');
+            }
+        }
+    });
+
+</script>
+
+</html>

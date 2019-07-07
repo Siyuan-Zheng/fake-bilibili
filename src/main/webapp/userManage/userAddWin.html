@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+	<body>
+		<div class="win-con acc-win clearfix">
+			<form class="layui-form" action="">
+				<div class="win-half left" style="margin-left: 200px; margin-top: 40px">
+					<div class="layui-form-item">
+					    <label class="layui-form-label">用户名称：</label>
+					    <div class="layui-input-block">
+					      	<input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入用户名" class="layui-input" id="userName">
+					    </div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">手机号码：</label>
+					    <div class="layui-input-block">
+					      	<input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入手机号码" class="layui-input" id="phoneNum">
+					    </div>
+					</div>
+					<div class="layui-form-item">
+					    <label class="layui-form-label">邮箱：</label>
+					    <div class="layui-input-block">
+							<input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入邮箱" class="layui-input" id="mail">
+					    </div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">密码：</label>
+						<div class="layui-input-block">
+							<input type="password" name="title" lay-verify="title" autocomplete = 'new-password' placeholder="请输入密码" class="layui-input" id="password" >
+						</div>
+					</div>
+				</div>
+			</form>
+			<div class="btn-box clearfix" style="bottom: 4rem">
+				<button class="layui-btn left qd">确定</button>
+				<button class="layui-btn right qx">取消</button>
+			</div>
+		</div>
+	</body>
+	<script>
+		layui.use(['layer','form','table','element'], function(){
+		  	let layer = layui.layer
+		  	,form = layui.form
+		  	, table = layui.table
+		  	,element = layui.element;
+
+
+		  	$(".qd").click(function () {
+
+		  		let userName = $("#userName").val();
+		  		let phoneNum = $("#phoneNum").val();
+		  		let mail = $("#mail").val();
+		  		let password = $("#password").val();
+
+		  		if (userName != ""){
+					$.ajax({
+						type: 'post',
+						url: '/userManageData',
+						data: {
+							method: 'addManager',
+							userName: userName,
+							mail: mail,
+							phoneNum: phoneNum,
+							password: hex_md5(password).toUpperCase(),
+							userStatus: 1,
+							userLevelId: 6,
+							userRightId: 0,
+						},
+						dataType: 'json',
+						success: function (data) {
+							console.log(data);
+							let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+							parent.layer.close(index); //再执行关闭
+							parent.reloadNav();
+						}
+					})
+				}else {
+		  			alert(123)
+				}
+			});
+
+			//弹窗按钮关闭
+		  	$('.qx').click(function(){
+				let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+				parent.layer.close(index); //再执行关闭   
+		  	});
+		  	//上传图片点击事件
+		  	$('.upload-btn').click(function(){
+		  		$('.upload').click();
+		  	});
+		  	
+		});
+	</script>
+</html>

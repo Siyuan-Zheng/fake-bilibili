@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('收藏夹')"></head>
+<link rel="stylesheet" th:href="@{/static/css/user/favorite.css}">
+
+<body>
+<div class="bili-header-m">
+    <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+</div>
+
+<div id="header"></div>
+
+<div id="navigator" class="n">
+    <div class="wrapper">
+        <div class="n-inner clearfix">
+            <div class="n-tab-links">
+                <a href="personalCenter" class="n-btn n-index n-fans">
+                    <span class="iconfont icon-ic_home"></span><span class="n-text">主页</span>
+                </a>
+                <a href="/personalVideo" class="n-btn n-video n-audio n-article n-album">
+                    <span class="iconfont icon-ic_video"></span>
+                    <span class="n-text">投稿</span>
+                </a>
+                <a href="personalFavorite" class="n-btn n-favlist active">
+                    <span class="iconfont icon-ic_collect"></span>
+                    <span class="n-text">收藏</span>
+                </a>
+            </div>
+            <div class="n-statistics">
+                <a href="" class="n-data n-gz" title="40">
+                    <p class="n-data-k">关注数</p>
+                    <p id="n-gz" class="n-data-v space-attention">40</p>
+                </a>
+                <a href="" class="n-data n-fs" title="0">
+                    <p class="n-data-k">粉丝数</p>
+                    <p id="n-fs" class="n-data-v space-fans">0</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="s-space">
+    <div id="page-fav" class="wrapper">
+        <div class="col-full clearfix master">
+            <div class="fav-main section" style="width: 100%">
+                <div class="search-input search-container">
+                </div>
+                <div class="fav-content section" style="margin-left: 100px;">
+                    <div class="search-empty-hint">
+                        <p>该收藏夹还没有视频哦~</p>
+                    </div>
+                    <ul class="fav-video-list clearfix content" id="centerFavoriteList">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(function () {
+        $("#header").load("/common/userCenterCommonHeader.html");
+        loadFavorite();
+    });
+
+
+    function loadFavorite() {
+        $.ajax({
+            type: 'post',
+            url: '/favorite',
+            data: {
+                method: 'getFavoriteList',
+                userId: user.userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let favoriteList = JSON.parse(data.favoriteList);
+                console.log(favoriteList);
+
+                for (let i = 0; i < favoriteList.length; i++){
+
+                    $("#centerFavoriteList").append(
+                        "<li class=\"small-item\">" +
+                        "<a href=\"video?"+ favoriteList[i].videoId +"\" class=\"cover cover-normal\">" +
+                        "<img src=\""+ favoriteList[i].imagePath +"\">" +
+                        "<div class=\"meta-mask\"></div>" +
+                        "</a>" +
+                        "<a href=\"video?"+ favoriteList[i].videoId +"\" class=\"title\">"+ favoriteList[i].videoName +"</a>" +
+                        "<div class=\"meta pubdate\">" +
+                        "收藏于："+ timestampToTime(favoriteList[i].favoriteTime) +"" +
+                        "</div>" +
+                        "<div class=\"be-dropdown video-edit\">" +
+                        "<div class=\"be-dropdown-trigger\" id=\"favoriteDelete\">" +
+                        "</div>" +
+                        "</div>" +
+                        "</li>\n")
+                }
+            }
+        })
+    }
+
+</script>
+</body>
+</html>

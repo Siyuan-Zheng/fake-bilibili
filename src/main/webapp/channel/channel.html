@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('频道')"></head>
+
+<link rel="stylesheet" th:href="@{/static/css/channel/channel.css}">
+
+<body>
+<div id="app">
+    <div class="bili-header-m report-wrap-module report-wrap-module">
+        <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+
+        <div th:include="common/commonBanner.html :: commonBanner"></div>
+
+        <div class="bili-wrapper">
+            <div th:include="common/commonMenu.html :: commonMenu"></div>
+        </div>
+    </div>
+
+    <div class="bili-wrapper">
+        <br>
+        <div class="l-con">
+            <div class="video-floor-m" style="">
+                <div class="dynamic-title">
+                    <div class="title clearfix">
+                        <span class="icon"></span>
+                        <span class="name">最新动态</span>
+                    </div>
+                    <div class="read-push">
+                        <i class="icon icon_read" id="reload"></i>
+                        <span class="info">换一换</span>
+                    </div>
+                </div>
+                <div class="storey-box clearfix">
+                    <div class="v-list" id="topNewVideoList"></div>
+                </div>
+            </div>
+            <div id="videolist_box" class="video-list list-c">
+                <div class="vl-hd clearfix">
+                    <div class="left">
+                        <ul class="tab-list order-tab">
+                                <li class="" id="orderByTime">投稿时间排序</li>
+                                <li class="" id="orderByHot">视频热度排序</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="vd-list-cnt">
+                    <ul class="vd-list mod-2" id="centerVideoList"></ul>
+                    <div style="clear:both"></div>
+
+                    <div class="pager pagination">
+                        <ul class="pages" id="pageUl"></ul>
+                        <div class="jump-pager">
+                            <div class="page-total">
+                                <span class="pagination-btn count">共 <span id="totalPage"></span> 页，</span>
+                            </div>
+                            <span>跳至</span>
+                            <input type="text" min="1" class="jump-pager-input no-spin" id="pageJumpInput">
+                            <span>页</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="r-con">
+            <section class="sec-rank">
+                <header class="rank-head">
+                    <h3>热门</h3>
+                </header>
+                <div class="rank-list-wrap">
+                    <ul class="rank-list hot-list" id="topVideoList"></ul>
+                </div>
+            </section>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+</body>
+<script>
+
+    let channelId = getUrlPara();
+    let flag;
+
+    $("#reload").click(function () {
+       loadTopNewVideo(channelId);
+    });
+
+    $("#orderByHot").click(function () {
+        $(this).toggleClass("on");
+        $("#orderByTime").removeClass("on");
+       flag = "hot";
+        loadVideo(channelId,1);
+    });
+
+    $("#orderByTime").click(function () {
+        $("#orderByHot").removeClass("on");
+        $(this).toggleClass("on");
+        flag = "time";
+        loadVideo(channelId,1);
+    });
+
+
+    function loadVideo(channelId,page){
+        if (flag === "hot") {
+            loadHotVideo(channelId,page);
+        }else if (flag === 'time'){
+            loadNewVideo(channelId,page);
+        }
+    }
+
+    function getUrlPara() {
+        let url = document.location.toString();
+        let arrUrl = url.split("?");
+        return arrUrl[1];
+    }
+    $(function () {
+        $("#orderByTime").click();
+        loadTopNewVideo(channelId);
+        loadTopVideo(channelId);
+        loadVideo(channelId,1);
+    });
+
+    function loadTopNewVideo(channelId) {
+        $.ajax({
+            type: 'post',
+            url: '/indexData',
+            data: {
+                method: 'getNewVideo',
+                channelId: channelId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let videoList = JSON.parse(data.newVideo);
+
+                $("#topNewVideoList").empty();
+
+                for (let i = 0; i < videoList.length; i++){
+
+                    let videoName = videoList[i].videoName;
+                    let videoId = videoList[i].videoId;
+                    let imagePath = videoList[i].imagePath;
+                    let videoPointNum =  videoList[i].videoPointNum;
+                    let videoCommentNum =  videoList[i].videoCommentNum;
+
+                    $("#topNewVideoList").append(
+                        "<div class=\"spread-module\">" +
+                        "   <a href=\"video?"+ videoId +"\">" +
+                        "       <div class=\"pic\">" +
+                        "           <div class=\"lazy-img\">" +
+                        "               <img alt=\""+ videoName +"\" src=\""+ imagePath +"\">" +
+                        "           </div>" +
+                        "           <div class=\"mask-video\"></div>" +
+                        "       </div>" +
+                        "       <p title=\""+ videoName +"\" class=\"t\">"+ videoName +"</p>" +
+                        "       <p class=\"num\">" +
+                        "           <span class=\"play\">" +
+                        "               <i class=\"icon\"></i>" +
+                        "               "+ videoPointNum +"" +
+                        "           </span>" +
+                        "           <span class=\"danmu\">" +
+                        "               <i class=\"icon\"></i>" +
+                        "               "+ videoCommentNum +"" +
+                        "           </span>" +
+                        "       </p>" +
+                        "   </a>" +
+                        "</div>")
+                }
+            }
+        })
+    }
+
+    function loadTopVideo(channelId) {
+        $.ajax({
+            type: 'post',
+            url: '/indexData',
+            data: {
+                method: 'getTopVideo',
+                channelId: channelId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let videoList = JSON.parse(data.topVideo);
+
+                for (let i = 0; i < videoList.length; i++){
+
+                    let videoName = videoList[i].videoName;
+                    let videoId = videoList[i].videoId;
+                    let imagePath = videoList[i].imagePath;
+                    let videoPointNum =  videoList[i].videoPointNum;
+
+                    if (i < 3){
+                        $("#topVideoList").append(
+                            "<li class=\"rank-item  show-detail first highlight\">" +
+                            "<i class=\"ri-num\">"+ (i+1) +"</i>" +
+                            "<a href=\"video?"+ videoId +"\" class=\"ri-info-wrap clearfix\">" +
+                            "<div class=\"lazy-img ri-preview\">" +
+                            "<img src=\""+ imagePath +"\">" +
+                            "</div>" +
+                            "<div class=\"ri-detail\">" +
+                            "<p class=\"ri-title\">"+ videoName +"</p>" +
+                            "<p class=\"ri-point\">播放量："+ videoPointNum +"</p>" +
+                            "</div>" +
+                            "</a>" +
+                            "</li>"
+                        )
+                    }else {
+                        $("#topVideoList").append(
+                            "<li class=\"rank-item  show-detail first\">" +
+                            "<i class=\"ri-num\">"+ (i+1) +"</i>" +
+                            "<a href=\"video?"+ videoId +"\" class=\"ri-info-wrap clearfix\">" +
+                            "<div class=\"lazy-img ri-preview\">" +
+                            "<img src=\""+ imagePath +"\">" +
+                            "</div>" +
+                            "<div class=\"ri-detail\">" +
+                            "<p class=\"ri-title\">"+ videoName +"</p>" +
+                            "<p class=\"ri-point\">播放量："+ videoPointNum +"</p>" +
+                            "</div>" +
+                            "</a>" +
+                            "</li>"
+                        )
+                    }
+                }
+            }
+        })
+    }
+
+    function loadNewVideo(channelId,page) {
+        $.ajax({
+            type: 'post',
+            url: '/channelData',
+            data: {
+                method: 'getPageNewVideoByChannelId',
+                channelId: channelId,
+                page: page,
+                limit: 18,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let videoList = JSON.parse(data.videoList);
+
+                $("#centerVideoList").empty();
+
+                for (let i = 0; i < videoList.length; i++){
+                    let videoName = videoList[i].videoName;
+                    let videoId = videoList[i].videoId;
+                    let imagePath = videoList[i].imagePath;
+                    let videoPointNum =  videoList[i].videoPointNum;
+                    let userName =  videoList[i].userName;
+                    let videoDesc =  videoList[i].videoDesc;
+                    let videoCommentNum =  videoList[i].videoCommentNum;
+
+                    changePage(JSON.parse(data.pageInfo));
+
+                    $("#centerVideoList").append(
+                        "<li>" +
+                        "<div class=\"l-item\">" +
+                        "<div class=\"l\">" +
+                        "<div class=\"spread-module\">" +
+                        "<a href=\"/video?"+ videoId +"\">" +
+                        "<div class=\"pic\">" +
+                        "<div class=\"lazy-img\">" +
+                        "<img src=\""+ imagePath +"\">" +
+                        "</div>" +
+                        "<div class=\"mask-video\"></div>" +
+                        "</div>" +
+                        "</a>" +
+                        "</div>" +
+                        "</div>" +
+                        "<div class=\"r\">" +
+                        "<a href=\"\" class=\"title\">"+ videoName +"</a>" +
+                        "<div class=\"v-desc\">"+ videoDesc +"</div>" +
+                        "<div class=\"v-info\">" +
+                        "<span class=\"v-info-i\">" +
+                        "<i class=\"b-icon b-icon-v-play\"></i>" +
+                        "<span>"+ videoPointNum +"</span>" +
+                        "</span>" +
+                        "<span class=\"v-info-i\">" +
+                        "<i class=\"b-icon b-icon-v-dm\"></i>" +
+                        "<span>"+ videoCommentNum +"</span>" +
+                        "</span>" +
+                        "</div>" +
+                        "<div class=\"up-info\">" +
+                        "<a href=\"/personalCenter\" class=\"v-author\">"+ userName +"</a>" +
+                        "</div>" +
+                        "</div>" +
+                        "</div>" +
+                        "</li>"
+                    )
+                }
+            }
+        })
+    }
+
+    function loadHotVideo(channelId,page) {
+        $.ajax({
+            type: 'post',
+            url: '/channelData',
+            data: {
+                method: 'getPageHotVideoByChannelId',
+                channelId: channelId,
+                page: page,
+                limit: 18,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let videoList = JSON.parse(data.videoList);
+
+                $("#centerVideoList").empty();
+
+                for (let i = 0; i < videoList.length; i++){
+                    let videoName = videoList[i].videoName;
+                    let videoId = videoList[i].videoId;
+                    let imagePath = videoList[i].imagePath;
+                    let videoPointNum =  videoList[i].videoPointNum;
+                    let userName =  videoList[i].userName;
+                    let videoDesc =  videoList[i].videoDesc;
+                    let videoCommentNum =  videoList[i].videoCommentNum;
+
+                    changePage(JSON.parse(data.pageInfo));
+
+                    $("#centerVideoList").append(
+                        "<li>" +
+                        "<div class=\"l-item\">" +
+                        "<div class=\"l\">" +
+                        "<div class=\"spread-module\">" +
+                        "<a href=\"/video?"+ videoId +"\">" +
+                        "<div class=\"pic\">" +
+                        "<div class=\"lazy-img\">" +
+                        "<img src=\""+ imagePath +"\">" +
+                        "</div>" +
+                        "<div class=\"mask-video\"></div>" +
+                        "</div>" +
+                        "</a>" +
+                        "</div>" +
+                        "</div>" +
+                        "<div class=\"r\">" +
+                        "<a href=\"\" class=\"title\">"+ videoName +"</a>" +
+                        "<div class=\"v-desc\">"+ videoDesc +"</div>" +
+                        "<div class=\"v-info\">" +
+                        "<span class=\"v-info-i\">" +
+                        "<i class=\"b-icon b-icon-v-play\"></i>" +
+                        "<span>"+ videoPointNum +"</span>" +
+                        "</span>" +
+                        "<span class=\"v-info-i\">" +
+                        "<i class=\"b-icon b-icon-v-dm\"></i>" +
+                        "<span>"+ videoCommentNum +"</span>" +
+                        "</span>" +
+                        "</div>" +
+                        "<div class=\"up-info\">" +
+                        "<a href=\"/personalCenter\" class=\"v-author\">"+ userName +"</a>" +
+                        "</div>" +
+                        "</div>" +
+                        "</div>" +
+                        "</li>"
+                    )
+                }
+            }
+        })
+    }
+
+    function changePage(pageInfo) {
+
+        $("#pageUl").empty();
+        let addHtml ='';
+        let currentPageNum = pageInfo.currentPageNum;
+        let prePage = pageInfo.prevPageNum;
+        let nextPage = pageInfo.nextPageNum;
+        let pages = pageInfo.totalPageNum;
+        let length = pages-1;
+
+        $("#totalPage").html(pages);
+
+        if(currentPageNum*1 >1){
+            addHtml +='<li class="page-item next">' +
+                '<button class="nav-btn iconfont icon-arrowdown2" onclick="loadVideo('+ channelId +','+prePage+')">' +
+                '上一页' +
+                '</button>' +
+                '</li>';
+        }
+        //5页的导航页
+        if(length*1 < 5){
+            for(let i=1;i<=pages;i++){
+                if(i == currentPageNum ){
+                    addHtml += "<li class=\"page-item active\">" +
+                        "<button class=\"pagination-btn num-btn\">"+ i +"</button>" +
+                        "</li>";
+                }else{
+                    addHtml += "<li class=\"page-item\">" +
+                        "<button class=\"pagination-btn num-btn\" onclick=\"loadVideo("+ channelId +","+ i +")\">"+ i +"</button>" +
+                        "</li>";
+                }
+            }
+        }else{//总页数大于5页
+            if(currentPageNum<4){
+                for(let i = 1; i <= 5; i++){
+                    if(i == currentPageNum ){
+                        addHtml += "<li class=\"page-item active\">" +
+                            "<button class=\"pagination-btn num-btn\">"+ i +"</button>" +
+                            "</li>";
+                    }else{
+                        addHtml += "<li class=\"page-item\">" +
+                            "<button class=\"pagination-btn num-btn\" onclick=\"loadVideo("+ channelId +","+ i +")\">"+ i +"</button>" +
+                            "</li>";
+                    }
+                }
+            }else{
+                let navigatePageNums;
+                if(currentPageNum <= pages-2){
+                    navigatePageNums = [currentPageNum-2,currentPageNum-1,currentPageNum,currentPageNum+1,currentPageNum+2];
+                }else{
+                    navigatePageNums = [pages-4,pages-3,pages-2,pages-1,pages];
+                }
+
+                for(let i=0; i<navigatePageNums.length; i++){
+                    if(navigatePageNums[i] == currentPageNum ){
+                        addHtml += "<li class=\"page-item active\">" +
+                            "<button class=\"pagination-btn num-btn\">"+ navigatePageNums[i] +"</button>" +
+                            "</li>";
+                    }else{
+                        addHtml += "<li class=\"page-item\">" +
+                            "<button class=\"pagination-btn num-btn\" onclick=\"loadVideo("+ channelId +","+ navigatePageNums[i] +")\">"+ navigatePageNums[i] +"</button>" +
+                            "</li>";
+                    }
+                }
+            }
+        }
+
+        if (currentPageNum*1 < pages-2){
+            addHtml += "<strong>...</strong>" +
+                "<li class=\"page-item last\">" +
+                "<button class=\"pagination-btn\" onclick=\"loadVideo("+ channelId +","+ pages +")\">"+ pages +"</button>" +
+                "</li>";
+        }
+
+        if(currentPageNum*1 < pages*1){
+            addHtml +='<li class="page-item next">' +
+                '<button class="nav-btn iconfont icon-arrowdown3" onclick="loadVideo('+ channelId +','+nextPage+')">' +
+                '下一页' +
+                '</button>' +
+                '</li>';
+        }
+        $("#pageUl").append(addHtml);
+    }
+
+    $("#pageJumpInput").keypress(function (e) {
+        if (e.which == 13) {
+
+            let totalPage = $("#totalPage").html();
+
+            if ($(this).val() > totalPage || $(this).val() == 0){
+                alert("跳转页数输入有误")
+            } else {
+                loadVideo(channelId,$(this).val());
+            }
+        }
+    });
+
+</script>
+</html>

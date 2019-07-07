@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+<body>
+<header class="head clearfix">
+    <div class="logo left"></div>
+    <div class="nav-item left">
+        <ul class="layui-nav">
+            <li class="layui-nav-item clearfix" onclick="navClick(1)">
+                <i class="left"></i>
+                <a class="left" href="javascript:;">视频管理</a>
+            </li>
+            <li class="layui-nav-item clearfix" onclick="navClick(2)">
+                <i class="left"></i>
+                <a class="left" href="javascript:;">分区管理</a>
+            </li>
+            <li class="layui-nav-item clearfix active">
+                <i class="left"></i>
+                <a class="left" href="javascript:;" onclick="navClick(3)">账号管理</a>
+            </li>
+            <li class="layui-nav-item clearfix">
+                <i class="left"></i>
+                <a class="left" href="javascript:;" onclick="navClick(4)">轮播图管理</a>
+            </li>
+            <li class="layui-nav-item clearfix">
+                <i class="left"></i>
+                <a class="left" href="javascript:;" onclick="navClick(5)">举报审核</a>
+            </li>
+        </ul>
+    </div>
+    <div class="user-item left">
+        <a class="logout right" href="javascript:;">退出</a>
+        <div class="user right">
+            <i class="left"></i>
+            <a class="left" href="javascript:;">admin</a>
+        </div>
+    </div>
+</header>
+<div class="main-con manage-con">
+    <div class="iframe-con">
+        <div class="table-box">
+            <div class="btn-box clearfix">
+                <button class="layui-btn add-btn left">新增管理员</button>
+                <div id="reload" style="display:none;"></div>
+                <div class="layui-form-item inp-item left">
+                    <label class="layui-form-label">账号名称：</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入账号名称"
+                               class="layui-input">
+                        <i class="search"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="table-con">
+                <table class="layui-hide" id="table1"></table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+    var selectUser;
+
+    //重载表格
+    function reloadNav() {
+        $("#reload").click();
+    }
+
+    layui.use(['layer', 'form', 'table', 'element'], function () {
+        var layer = layui.layer
+            , form = layui.form
+            , table = layui.table
+            , element = layui.element
+
+        //导航栏点击
+        $('.nav-item .layui-nav-item').click(function () {
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+        //主体内容高
+        $('.main-con').height($(window).height() - $('header').height());
+
+        //表格配置
+        var theight = $('.manage-con').height() - $('.btn-box').height() - 40;
+        table.render({
+            elem: '#table1'
+            , id: 'table1'
+            , height: theight
+            , url: '/userManageData'
+            , method: 'post'
+            , where: {
+                method: 'getUserList',
+            }
+            , parseData: function (res) {
+                return {
+                    "code": JSON.parse(res.code),
+                    "msg": res.msg,
+                    "count": JSON.parse(res.count),
+                    "data": JSON.parse(res.data)
+                };
+            }
+            ,limit: 13
+            , cellMinWidth: 80
+            , page: true //开启分页
+            , cols: [[ //表头
+                {field: 'userId', title: '用户编号', align: 'center'}
+                , {field: 'userName', title: '账号名称', align: 'center'}
+                , {field: 'phoneNum', title: '手机号码', align: 'center'}
+                , {field: 'mail', title: '用户邮箱', align: 'center'}
+                , {field: 'rightName', title: '用户权限', align: 'center'}
+                , {field: 'levelId', title: '用户等级', align: 'center'}
+                , {field: 'rightDesc', title: '用户状态', align: 'center'}
+                , {
+                    field: 'operate', title: '操作', align: 'center', width: 200,
+                    templet: function (d) {
+                        return "<div class='oper-box clearfix'><span class='left view view-btn' userId = '" + d.userId + "'></span><span class='left ban edit-btn' userId = '" + d.userId + "' userName = '" + d.userName + "' userStatus = '" + d.userStatus + "'></span><span class='left del del-btn tableDel' userId = '" + d.userId + "' userName = '" + d.userName + "'></span></div>"
+                    }
+                }
+            ]]
+        });
+
+        //重载表格
+        $("#reload").click(function () {
+            table.reload("table1", {
+                url: '/userManageData' //数据接口
+                , method: 'post'
+                , where: {
+                    method: 'getUserList',
+                }
+                , parseData: function (res) { //res 即为原始返回的数据
+                    console.log(JSON.parse(res.data));
+                    return {
+                        "code": JSON.parse(res.code), //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": JSON.parse(res.count), //解析数据长度
+                        "data": JSON.parse(res.data) //解析数据列表
+                    };
+                }
+                ,limit: 13
+            })
+        });
+
+        //弹窗配置
+        //新增
+        $('.add-btn').click(function () {
+            parent.layer.open({
+                type: 2,
+                title: '新建账号',
+                shadeClose: true,
+                shade: 0.8,
+                content: 'userAddWin',
+                area: ['60%', '65%'],
+                offset: 'auto',
+                anim: 3,
+                isOutAnim: true
+            })
+        });
+        //查看
+        $(document).on('click', '.view-btn', function (data) {
+            window.location.href = "personalCenter"
+        });
+        //编辑
+        $(document).on('click', '.edit-btn', function (data) {
+            let userId = $(this).attr('userId');
+            let userName = $(this).attr('userName');
+            let userStatus = $(this).attr('userStatus');
+            selectUser = [{"userId": userId, "userName": userName, "userStatus": userStatus}];
+
+            parent.layer.open({
+                type: 2,
+                title: '封禁用户',
+                shadeClose: true,
+                shade: 0.8,
+                content: 'userBanWin',
+                area: ['45%', '65%'],
+                offset: 'auto',
+                anim: 3,
+                isOutAnim: true
+            })
+        });
+        //删除
+        $(document).on('click', '.del-btn', function (data) {
+            let userId = $(this).attr('userId');
+            let userName = $(this).attr('userName');
+            selectUser = [{"userId": userId, "userName": userName}];
+
+            parent.layer.open({
+                type: 2,
+                title: '确认删除账号',
+                shadeClose: true,
+                shade: 0.8,
+                content: 'userDelWin',
+                area: ['45%', '60%'],
+                offset: 'auto',
+                anim: 3,
+                isOutAnim: true
+            })
+        });
+    });
+
+    function navClick(n) {
+        if (n == 1) {
+            window.location.href = 'videoManage';
+        } else if (n == 2) {
+            window.location.href = 'channelManage';
+        } else if (n == 3) {
+            window.location.href = 'userManage';
+        } else if (n == 4) {
+            window.location.href = 'bannerManage';
+        }else if (n == 5) {
+            window.location.href = 'reportManage';
+        }
+    }
+</script>
+</html>

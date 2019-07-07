@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频')"></head>
+
+<body>
+<div th:fragment="commonHeader">
+    <div class="nav-mask"></div>
+    <div class="nav-wrapper clearfix bili-wrapper">
+        <div class="nav-con fl">
+            <ul>
+                <li class="nav-item home">
+                    <a href="/index" title="主站" class="t">
+                        <i class="header-iconfont header-icon-bilibili-tv"></i>
+                        主站
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="up-load fr">
+            <a href="/doUpload" class="u-link" id="uploadBtn">
+                投稿
+            </a>
+        </div>
+        <div class="nav-con fr">
+
+            <ul class="fr" style="display: none" id="noneLoginTitle">
+                <li class="nav-item" id="toLogin">
+                    <a href="/login" class="t">登录</a>
+                </li>
+                <li class="nav-item">
+                    <a class="t">|</a>
+                </li>
+                <li class="nav-item" id="toRegister">
+                    <a href="/register" class="t">注册</a>
+                </li>
+            </ul>
+            <ul class="fr" id="loginTitle">
+                <li class="nav-item profile-info" id="headerUserImg">
+                    <a href="/personalCenter" class="t">
+                        <div class="i-face">
+                            <img src="" class="face" id="headerUserFace">
+                            <img class="pendant">
+                        </div>
+                    </a>
+                    <div class="profile-m dd-bubble" style="display: none;" id="headerUserProfileDiv">
+                        <div class="header-u-info">
+                            <div class="header-uname">
+                                <b class="" id="headerUserName"></b>
+                                <p class="vip-type">
+                                    <a href="/personalCenter">
+                                        <span class="big-vip-red" id="headerVipType"></span>
+                                    </a>
+                                </p>
+                            </div>
+                            <div class="grade clearfix">
+                                <span class="hd fl">等级</span>
+                                <a href="">
+                                    <div class="bar fr">
+                                        <div class="lt" id="headerUserLevel"></div>
+                                        <div class="rate" style="width: 65%;"></div>
+                                        <div class="num">
+                                            <div>
+                                                18825<span>/28800</span></div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <div class="desc-tips">
+                                    <span class="arrow-left"></span>
+                                    <div class="lv-row">作为<strong>LV5</strong>，你可以：</div>
+                                    <div>1、购买邀请码（1个/月）<br>2、发射个性弹幕（彩色、高级、顶部、底部）<br>3、参与视频互动（评论、添加tag）<br>4、投稿成为偶像
+                                    </div>
+                                    <a href=""
+                                       target="_blank" class="help-link">会员等级相关说明 &gt;</a></div>
+                            </div>
+                        </div>
+                        <div class="member-menu">
+                            <ul class="clearfix">
+                                <li>
+                                    <a href="/home" class="account">
+                                        <i class="bili-icon b-icon-p-account"></i>
+                                        个人中心
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="">
+                                        <i class="bili-icon b-icon-p-member"></i>
+                                        投稿管理
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="member-bottom">
+                            <a href="javascript:void(0)" class="logout" onclick="logout()">退出</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item" id="headerDynamic">
+                    <a href="/dynamic" class="t">动态</a>
+                    <div class="i-frame" style="display: none; width: 380px; height: 392px; margin-left: -170px; "
+                         id="headerDynamicDiv">
+                        <iframe src="/common/dynamic.html" width="100%" height="100%"></iframe>
+                    </div>
+                </li>
+                <li class="nav-item" id="headerFavorite">
+                    <a href="/personalFavorite" class="t">收藏</a>
+                    <div class="favorites-m mini-wnd-nav favorite-wnd dd-bubble" style="display: none;"
+                         id="headerFavoriteDiv">
+                        <ul class="list history">
+                            <div id="headerFavorite2"></div>
+                        </ul>
+                        <div>
+                            <a href="/personalFavorite" class="read-more">
+                                查看更多
+                                <i class="b-icon b-icon-arrow-r"></i>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li report-id="playpage_history" class="nav-item" id="headerHistory">
+                    <a href="/personalHistory" class="t">历史</a>
+                    <div class="mini-wnd-nav history-wnd dd-bubble" style="display: none;"
+                         id="headerHistoryDiv">
+                        <ul class="list history">
+                            <div id="headerHistory2"></div>
+                        </ul>
+                        <div>
+                            <a href="/personalHistory" class="read-more">
+                                查看更多
+                                <i class="b-icon b-icon-arrow-r"></i>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script>
+
+        if (user === null || user === undefined){
+            $(".up-load").hide();
+            $("#loginTitle").hide();
+            $("#noneLoginTitle").show();
+        }else {
+            initHeaderUser();
+            loadHeaderHistory();
+            loadHeaderFavorite();
+        }
+
+        function logout() {
+
+            $.ajax({
+                type: 'post',
+                url: '/loginData',
+                data: {
+                    method: 'logout',
+                },
+                dataType: 'json',
+                success: function (data) {
+                }
+            });
+            window.location = "/login";
+        }
+        
+        function initHeaderUser() {
+            $("#headerUserName").html(user.userName);
+            $("#headerUserFace").attr("src",user.imagePath);
+
+            if (user.userRightId === 1) {
+                $(".vip-type").hide();
+            } else if (user.userRightId === 2) {
+                $("#headerVipType").html("大会员");
+                $("#headerUserName").addClass("big-vip-red");
+            } else if (user.userRightId === 3) {
+                $("#headerUserName").addClass("big-vip-red");
+                $("#headerVipType").html("年度大会员");
+            } else if (user.userRightId === 0){
+                $("#headerUserName").addClass("big-vip-red");
+                $("#headerVipType").html("管理员");
+                $("#uploadBtn").html("管理").removeAttr("href").attr("href","videoManage");
+            }
+
+
+            $("#headerUserLevel").addClass("lv" + user.levelId);
+
+        }
+
+
+        function loadHeaderHistory() {
+
+            $.ajax({
+                type: 'post',
+                url: '/history',
+                data: {
+                    method: 'getHistoryList',
+                    userId: user.userId,
+                },
+                dataType: 'json',
+                success: function (data) {
+
+                    let historyList = JSON.parse(data.historyList);
+
+                    for (let i = 0; i < historyList.length; i++) {
+                        let videoName = historyList[i].videoName;
+                        let videoId = historyList[i].videoId;
+
+                        $("#headerHistory2").append("<li>" +
+                            "<a href=\"/video?"+ videoId +"\" title=" + videoName + " class=\"clearfix\">" +
+                            "<div class=\"link\">"+videoName+"</div>" +
+                            "</a>" +
+                            "</li>");
+                    }
+                }
+            });
+        }
+
+
+        function loadHeaderFavorite() {
+
+            $.ajax({
+                type: 'post',
+                url: '/favorite',
+                data: {
+                    method: 'getFavoriteList',
+                    userId: user.userId,
+                },
+                dataType: 'json',
+                success: function (data) {
+
+                    let favoriteList = JSON.parse(data.favoriteList);
+
+                    for (let i = 0; i < favoriteList.length; i++) {
+                        let videoName = favoriteList[i].videoName;
+                        let videoId = favoriteList[i].videoId;
+
+                        $("#headerFavorite2").append("<li>" +
+                            "<a href=\"/video?"+ videoId +"\" title="+ videoName +">"+ videoName +"</a></li>")
+
+                    }
+                }
+            })
+        }
+
+
+
+        $("#headerUserImg").mouseover(function () {
+            $("#headerUserProfileDiv").show();
+            $("#headerUserImg").addClass("on");
+        }).mouseout(function () {
+            $("#headerUserProfileDiv").hide();
+            $("#headerUserImg").removeClass("on");
+        });
+        $("#headerBigVip").mouseover(function () {
+            $("#i_menu_become_vip").show();
+        }).mouseout(function () {
+            $("#i_menu_become_vip").hide();
+        });
+        $("#headerUserMessage").mouseover(function () {
+            $("#headerUserMessageDiv").show();
+        }).mouseout(function () {
+            $("#headerUserMessageDiv").hide();
+        });
+        $("#headerDynamic").mouseover(function () {
+            $("#headerDynamicDiv").show();
+        }).mouseout(function () {
+            $("#headerDynamicDiv").hide();
+        });
+        $("#headerFavorite").mouseover(function () {
+            $("#headerFavoriteDiv").show();
+        }).mouseout(function () {
+            $("#headerFavoriteDiv").hide();
+        });
+        $("#headerHistory").mouseover(function () {
+            $("#headerHistoryDiv").show();
+        }).mouseout(function () {
+            $("#headerHistoryDiv").hide();
+        });
+    </script>
+
+</div>
+</body>
+</html>

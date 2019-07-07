@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频')"></head>
+<body>
+<div th:fragment="commonBanner">
+    <div id="banner_link" class="head-banner" style="background-image: url(/static/images/top/background.png);">
+        <div class="head-content bili-wrapper">
+            <div class="search">
+                <div class="searchform">
+                    <input type="text" autocomplete="off" class="search-keyword">
+                    <button class="search-submit" onclick="search()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function search() {
+            let videoName = $(".search-keyword").val();
+            if (videoName !== null && videoName !== undefined && videoName !==''){
+                window.location = "search?"+videoName;
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

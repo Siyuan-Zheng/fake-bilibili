@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('账号验证')"></head>
+<link th:href="@{/static/css/account/security.css}" rel="stylesheet">
+<body>
+<div id="app">
+    <div class="bili-header-m report-wrap-module">
+        <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+    </div>
+    <div class="top-banner">
+        <img src="/static/images/account/rl_top.png">
+    </div>
+    <div class="container">
+        <div contentP class="container">
+            <div step contentP class="contanier">
+                <div step>
+                    <div stepP step class="steps-box">
+                        <div stepP class="clearfix steps-list">
+                            <a stepP class="router-link-active clearfix float-left steps-pass">
+                                <span stepP class="float-left steps-icon">1</span>
+                                <div stepP class="float-left steps-title">验证身份</div>
+                                <i stepP class="steps-line float-left"></i>
+                            </a>
+                            <a stepP class="clearfix float-left steps-pass">
+                                <span stepP class="float-left steps-icon">2</span>
+                                <div stepP class="float-left steps-title">修改信息</div>
+                                <i stepP class="steps-line float-left"></i>
+                            </a>
+                            <a stepP class="clearfix float-left active">
+                                <span stepP class="float-left steps-icon">3</span>
+                                <div stepP class="float-left steps-title">修改成功</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div successP class="container">
+                <h3 successP class="result-title">
+                    恭喜，修改成功！
+                </h3>
+                <p successP class="result-desc">
+                    为了您的账号安全，修改成功后，将注销退出，请重新登录
+                </p>
+                <img successP src="/static/images/account/result-success.png" alt="" class="result-img">
+                <a successP href="/login">
+                    <button successP type="button" class="el-button result-button el-button--primary">
+                        <span>重新登录</span>
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ch">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频')"></head>
+<body>
+<div class="b-header-mask"></div>
+<div class="z_header">
+    <div class="z_top_nav">
+        <ul>
+            <li class="home" title="首页">
+                <a href="index">
+                    <span>主站</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="uns_box">
+
+        <ul class="menu" style="margin-left: 200px; display: none;" id="noneLoginTitle">
+            <li class="favorites">
+                <a href="/login">登录</a>
+            </li>
+            <li class="favorites">
+                <a>|</a>
+            </li>
+            <li class="favorites">
+                <a href="/register">注册</a>
+            </li>
+        </ul>
+
+        <ul class="menu" id="loginTitle">
+
+            <li class="avatar">
+                <img class="avatar1" src="" alt="头像" onclick="swapToUser()" style="cursor:pointer">
+                <div class="i_menu_profile">
+                    <div class="uname">
+                        <b id="userName" onclick="swapToUser()" style="cursor:pointer"></b>
+                        <a href="#" title="等级五" id="userLevel"></a>
+                    </div>
+                    <div class="sancoin">
+
+                    </div>
+                    <div class="user-info">
+                        <span>等级</span>
+                        <div class="points-cnt">
+                            <div class="lt" id="level">
+                                <div class="user-info-desc">
+                                    <div class="arrow-left"></div>
+                                </div>
+                            </div>
+                            <div class="bar">
+                                <div class="points"></div>
+                            </div>
+                        </div>
+                        <div class="points-schedule">
+                            <span>999</span>
+                            <span class="next-points">/9999</span>
+                        </div>
+                    </div>
+                    <div class="member-menu-wrp">
+                        <ul class="member-menu">
+                            <li>
+                                <a href="/home">
+                                    <i class="b-icon b-icon-p-account"></i>
+                                    个人中心
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/uploadManage">
+                                    <i class="b-icon b-icon-p-account2"></i>
+                                    投稿管理
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="member-bottom">
+                        <a href="javascript:void(0)" onclick="logout()">退出</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="avatarti"></li>
+
+            <li class="dynamic">
+                <a href="/dynamic">动态</a>
+                <div class="dynamic-div" id="dynamic-div">
+                    <div class="view-vide">
+                        <div class="view-video">
+                            <ul id="dynamic" style="margin: 20px auto auto auto"></ul>
+                        </div>
+                    </div>
+                    <div class="video-l">
+                        <a href="/dynamic">查看更多</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="favorites">
+                <a href="/personalFavorite">收藏夹</a>
+                <div class="favorites-div">
+                    <ul class="list" id="favorite">
+                    </ul>
+                    <a href="/personalFavorite" class="read-more">查看更多</a>
+                </div>
+            </li>
+            <li class="history">
+                <a href="/personalHistory">历史</a>
+                <div class="history-div">
+                    <em>
+                        <i></i>
+                        <span>今日</span>
+                    </em>
+                    <ul class="list" id="history">
+                    </ul>
+                    <a href="/personalHistory" class="read-more">查看更多</a>
+                </div>
+            </li>
+            <li class="submission">
+                <a class="i-link" href="/doUpload" id="toUpload">投&nbsp;稿</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+
+<script>
+
+    if (user === null || user === undefined){
+        $("#toUpload").hide();
+        $("#loginTitle").hide();
+        $("#noneLoginTitle").show();
+    }else {
+        $(".avatar1").attr("src",user.imagePath)
+        $("#userLevel").css("background", "url(/static/images/top/level/userlevel" + user.levelId + ".png)").css("-moz-background-size", "100% 100%").css("background-size", "100% 100%");
+
+        $("#level").css("background", "url(/static/images/top/level/level" + user.levelId + ".png) no-repeat center").css("-moz-background-size", "70% 70%").css("background-size", "70% 70%").css("background-color", "#f3cb85");
+        $("#userName").html(user.userName);
+
+        if (user.userRightId === 0){
+            $("#toUpload").html("管理").removeAttr("href").attr("href","videoManage");
+        }
+
+        loadFavorite();
+        loadHistory();
+        loadDynamic();
+
+
+
+    }
+
+    function logout() {
+        $.ajax({
+            type: 'post',
+            url: '/loginData',
+            data: {
+                method: 'logout',
+            },
+            dataType: 'json',
+            success: function (data) {
+            }
+        });
+        window.location = "/login";
+    }
+
+    function loadFavorite() {
+
+        $.ajax({
+            type: 'post',
+            url: '/favorite',
+            data: {
+                method: 'getFavoriteList',
+                userId: user.userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                let favoriteList = JSON.parse(data.favoriteList);
+
+                for (let i = 0; i < favoriteList.length; i++) {
+                    let videoName = favoriteList[i].videoName;
+                    let videoId = favoriteList[i].videoId;
+
+                    $("#favorite").append("<li id='" + videoId + "'><a href=\"video?"+ videoId +"\" title=\"" + videoName + "\">" + videoName + "</a></li>")
+
+                }
+            }
+        })
+    }
+
+    function swapToUser(){
+        window.location.href = "personalCenter";
+    }
+
+    function loadHistory() {
+
+        $.ajax({
+            type: 'post',
+            url: '/history',
+            data: {
+                method: 'getHistoryList',
+                userId: user.userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                let historyList = JSON.parse(data.historyList);
+
+                for (let i = 0; i < historyList.length; i++) {
+                    let videoName = historyList[i].videoName;
+                    let videoId = historyList[i].videoId;
+
+                    $("#history").append("<li id='" + videoId + "'><a href=\"video?"+ videoId +"\" title=\"" + videoName + "\">" + videoName + "</a></li>")
+
+                }
+            }
+        });
+    }
+
+    function loadDynamic(){
+        $.ajax({
+            type: 'post',
+            url: '/dynamicData',
+            data: {
+                method: 'getDynamicVideoList',
+                userId: user.userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+
+                let dynamicList = JSON.parse(data.dynamicList);
+
+                for (let i = 0; i < dynamicList.length; i++){
+
+                    let videoName = dynamicList[i].videoName;
+                    let userName = dynamicList[i].userName;
+                    let imagePath = dynamicList[i].imagePath;
+                    let videoId = dynamicList[i].videoId;
+
+                    $("#dynamic").append("<li>" +
+                        "<img src=\""+ imagePath +"\">" +
+                        "<span>"+ userName +"</span>" +
+                        "<em>投稿了</em>" +
+                        "<a href=\"video?"+ videoId +"\" title=\""+ videoName +"\">"+ videoName +"</a>" +
+                        "</li>");
+                }
+            }
+        })
+    }
+</script>
+</html>

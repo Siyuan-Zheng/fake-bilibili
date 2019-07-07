@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+	<body>
+		<header class="head clearfix">
+			<div class="logo left"></div>
+			<div class="nav-item left">
+				<ul class="layui-nav">
+					<li class="layui-nav-item clearfix" onclick="navClick(1)">
+						<i class="left"></i>
+						<a class="left" href="javascript:;">视频管理</a>
+					</li>
+					<li class="layui-nav-item clearfix" onclick="navClick(2)">
+						<i class="left"></i>
+						<a class="left" href="javascript:;">分区管理</a>
+					</li>
+					<li class="layui-nav-item clearfix">
+						<i class="left"></i>
+						<a class="left" href="javascript:;" onclick="navClick(3)">账号管理</a>
+					</li>
+					<li class="layui-nav-item clearfix ">
+						<i class="left"></i>
+						<a class="left" href="javascript:;" onclick="navClick(4)">轮播图管理</a>
+					</li>
+					<li class="layui-nav-item clearfix active">
+						<i class="left"></i>
+						<a class="left" href="javascript:;" onclick="navClick(5)">举报审核</a>
+					</li>
+				</ul>
+			</div>
+			<div class="user-item left">
+				<a class="logout right" href="javascript:;">退出</a>
+				<div class="user right">
+					<i class="left"></i>
+					<a class="left" href="javascript:;">admin</a>
+				</div>
+			</div>
+		</header>
+		<div class="main-con clearfix">
+			<div class="left-nav left">
+				<ul>
+				  	<li class="left-item clearfix active" onclick="changeIframe(1)">
+				    	<a class="left" href="javascript:;">视频审核</a>
+				   		<i class="right"></i>
+				  	</li>
+				  	<li class="left-item clearfix" onclick="changeIframe(2)">
+					    <a class="left" href="javascript:;">评论审核</a>
+					    <i class="right"></i>
+				  	</li>
+				</ul>
+			</div>
+			<div class="right-con left">
+				<iframe id="iframebox" src="videoReportIframe" width="" height=""></iframe>
+			</div>
+		</div>
+	</body>
+	<script>
+		layui.use(['layer','form','table','element'], function(){
+		  	var layer = layui.layer
+		  	,form = layui.form
+		  	, table = layui.table
+		  	,element = layui.element
+		  	
+		  	$(function(){
+		  		//导航栏点击
+		  		$('.nav-item .layui-nav-item').click(function(){
+		  			$(this).addClass('active').siblings().removeClass('active');
+		  		});
+		  		//主体内容高
+		  		$('.main-con').height($(window).height()-$('header').height());
+		  		//左侧导航栏点击
+		  		$('.main-con .left-item').click(function(){
+		  			$(this).addClass('active').siblings().removeClass('active');
+		  		});
+		  	});
+		});
+		function changeIframe(n){
+			if(n == 1){
+				$('#iframebox').attr('src','videoReportIframe');
+			}else if(n == 2){
+				$('#iframebox').attr('src','commentReportIframe');
+			}
+		}
+		function navClick(n){
+			if (n == 1) {
+				window.location.href = 'videoManage';
+			} else if (n == 2) {
+				window.location.href = 'channelManage';
+			} else if (n == 3) {
+				window.location.href = 'userManage';
+			} else if (n == 4) {
+				window.location.href = 'bannerManage';
+			}else if (n == 5) {
+				window.location.href = 'reportManage';
+			}
+		}
+	</script>
+</html>

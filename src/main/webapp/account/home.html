@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('账号中心')"></head>
+<body>
+<link rel="stylesheet" th:href="@{/static/css/account/home.css}">
+
+<div class="bili-header-m">
+    <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+</div>
+
+<div id="content">
+    <div secuityRihgt>
+        <div topD secuityRihgt class="top-header">
+            <div topD class="top-img"></div>
+        </div>
+        <div secuityRihgt class="security_content">
+            <div leftD secuityRihgt class="security-left">
+                <span leftD class="security-title">个人中心</span>
+                <ul leftD id="ser-ul" class="security-ul">
+                    <li leftD class="security-list router-link-exact-active on" id="home">
+                        <i leftD class="security-icon icon-0"></i>
+                        <span leftD class="security-nav-name">
+                            首<b style="width:28px; display:inline-block"></b>页
+                        </span>
+                    </li>
+                    <li leftD class="security-list" id="setting">
+                        <i leftD class="security-icon icon-3"></i>
+                        <span leftD class="security-nav-name">我的信息</span>
+                    </li>
+                    <li leftD class="security-list" id="security">
+                        <i leftD class="security-icon icon-6"></i>
+                        <span leftD class="security-nav-name">修改密码</span>
+                    </li>
+                </ul>
+                <ul leftD id="securityOutLink" class="security-ul report-wrap-module">
+                    <li leftD class="security-list-jump">
+                        <a leftD href="/personalCenter" target="_self" class="security-list-link-jump">
+                            个人空间
+                            <i leftD class="security-list-jump-icon"></i>
+                        </a>
+                    </li>
+
+                    <li leftD class="security-list-jump">
+                        <a leftD href="/doUpload" target="_self" class="security-list-link-jump">
+                        创作中心
+                        <i leftD class="security-list-jump-icon"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div secuityRihgt class="security-right">
+                <div secuityRihgt class="secuity-right-home">
+                    <div centerDiv secuityRihgt>
+                        <div centerDiv class="index-info" style>
+                            <div centerDiv class="home-head">
+                                <img centerDiv src="" id="userImage">
+                                <a centerDiv class="gotoSpace">修改头像</a>
+                            </div>
+                            <div centerDiv class="home-right">
+                                <div centerDiv class="home-top-msg">
+                                    <span centerDiv class="home-top-msg-name home-top-msg-name-color" id="centerUserName">朝涼</span>
+                                    <span centerDiv class="home-user-spec" id="centerVipType"></span>
+                                </div>
+                                <div leavelD centerDiv class="home-top-level">
+                                    <span leavelD class="home-top-level-all">
+                                        <div leavelD class="home-top-progress-wrap">
+                                            <span leavelD class="home-top-level-head home-top-level-head-active" id="centerUserLevel">LV5</span>
+                                            <span leavelD class="home-top-level-up">
+                                                进度条
+                                                <span leavelD class="home-top-level-upgo" style="width: 65.94%;"></span>
+                                            </span>
+                                        </div>
+                                        <span leavelD class="home-top-level-number">
+                                            <i leavelD class="now-num">18990</i>
+                                            <i leavelD class="num-icon">/</i>
+                                            <i leavelD class="max-num">28800</i>
+                                        </span>
+                                        <span leavelD class="home-to-update">修改资料</span>
+                                        <a leavelD href="/personalCenter" class="home-to-space">
+                                            个人空间
+                                            <i leavelD class="m-arrow"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div safeD secuityRihgt>
+                        <div safeD class="home-safe" style>
+                            <span safeD class="h-reward-icon"></span>
+                            <span safeD class="h-reward-info">账号安全</span>
+                            <span safeD class="go-secuirty">更多账号安全
+                                <i safeD class="m-arrow"></i>
+                            </span>
+                            <div safeD class="h-content-safe">
+                                <div safeD class="h-safe-list">
+                                    <div safeD class="h-safe-icon position-0"></div>
+                                    <div safeD class="h-safe-msg">
+                                        <p safeD class="h-safe-title">我的邮箱</p>
+                                        <p safeD class="h-safe-desc">绑定邮箱后即可使用邮箱登录</p>
+                                        <span safeD class="h-safe-nobtn" id="mailBtn">已绑定</span>
+                                        <span safeD class="h-safe-a" id="changeMail">更改邮箱&gt;</span>
+                                    </div>
+                                </div>
+                                <div safeD class="h-safe-list">
+                                    <div safeD class="h-safe-icon position-1"></div>
+                                    <div safeD class="h-safe-msg">
+                                        <p safeD class="h-safe-title">我的手机</p>
+                                        <p safeD class="h-safe-desc">绑定手机后即可使用手机号登录</p>
+                                        <span safeD class="h-safe-nobtn" id="phoneBtn">已绑定</span>
+                                        <span safeD class="h-safe-a" id="changePhone">更改手机&gt;</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+
+    $(function () {
+        initCenterUser()
+    });
+
+    function initCenterUser() {
+        $("#centerUserName").html(user.userName);
+
+        console.log(user);
+
+        if (user.userRightId === 1) {
+            $("#centerVipType").hide();
+        } else if (user.userRightId === 2) {
+            $("#centerVipType").html("大会员");
+        } else if (user.userRightId === 3) {
+            $("#centerVipType").html("年度大会员");
+        }
+
+        $("#centerUserLevel").html("LV" + user.levelId);
+
+        if (user.phoneNum === ""){
+            $("#phoneBtn").html("去绑定").removeClass("h-safe-nobtn").addClass("h-safe-btn");
+            $("#changePhone").remove();
+        }
+
+        if (user.mail === ""){
+            $("#mailBtn").html("去绑定").removeClass("h-safe-nobtn").addClass("h-safe-btn");
+            $("#changeMail").remove();
+        }
+
+        $("#userImage").attr("src",user.imagePath);
+    }
+
+    $("#setting").click(function () {
+        window.location.href = "/setting";
+    });
+    $("#home").click(function () {
+        window.location.href = "/home";
+    });
+    $("#security").click(function () {
+        window.location.href = "/security";
+        sessionStorage.setItem("type","password");
+    });
+
+    $("#changeMail").click(function () {
+        sessionStorage.setItem("type","mail");
+        window.location.href = "/security";
+    });
+
+    $("#changePhone").click(function () {
+        sessionStorage.setItem("type","phone");
+        window.location.href = "/security";
+    });
+
+    $("#mailBtn").click(function () {
+        if ($(this).hasClass("h-safe-btn")){
+            sessionStorage.setItem("type","mail");
+            window.location.href = "/phoneVerify";
+        }
+    });
+
+    $("#phoneBtn").click(function () {
+        if ($(this).hasClass("h-safe-btn")){
+            sessionStorage.setItem("type","phone");
+            window.location.href = "/mailVerify";
+        }
+    })
+
+</script>
+</html>

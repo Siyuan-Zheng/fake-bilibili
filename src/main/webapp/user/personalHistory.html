@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('历史记录')"></head>
+<link rel="stylesheet" th:href="@{/static/css/user/history.css}">
+<body>
+<!--<div class="bili-header-m" id="commonHeader"></div>-->
+
+<div class="bili-header-m">
+    <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+    <div th:include="common/commonBanner.html :: commonBanner"></div>
+</div>
+
+<div id="content">
+    <div class="history-wrap">
+        <div class="newlist_info">
+            <div class="b-head clearfix">
+                <div class="b-head-c">
+                    <i class="b-icon b-icon-history"></i>
+                    <span class="b-head-t">播放历史</span>
+                </div>
+                <div class="history-btn">
+                    <a class="btn cleanhsbtn" id="clearHistory">清空历史</a>
+                </div>
+            </div>
+        </div>
+        <div class="list-contain" style="position:relative">
+            <ul class="history-list" id="history_list"></ul>
+            <div class="nodata-contain" style="display: none;">
+                <div class="txt">
+                    <p>好像最近没有看过视频呢</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dlg-contain" style="display: none;">
+            <div class="hsmask"></div>
+            <div class="history-dlg">
+                <p class="dlg-txt">清空之后就什么都没有了哦~</p>
+                <div class="hsbtn clearfix">
+                    <a href="#" class="sure">确定清空</a>
+                    <a href="#" class="cancel">取消</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+     let userId = user.userId;
+
+     $(function () {
+         loadHistory();
+     });
+
+     $("#clearHistory").click(function () {
+         $(".dlg-contain").show();
+     });
+
+     $(".cancel").click(function () {
+         $(".dlg-contain").hide();
+     });
+
+     $(".sure").click(function () {
+         $.ajax({
+             type: 'post',
+             url: '/history',
+             data: {
+                 method: 'deleteHistory',
+                 userId: userId,
+             },
+             dataType: 'json',
+             success: function (data) {
+                 if (data.msg === 'ok') {
+                     alert("清空成功")
+                 }else {
+                     alert("清空失败")
+                 }
+             }
+         });
+         $("#history_list").empty();
+         $(".nodata-contain").show();
+         $(".dlg-contain").hide();
+     });
+
+
+
+    function loadHistory() {
+        $.ajax({
+            type: 'post',
+            url: '/history',
+            data: {
+                method: 'getHistoryList',
+                userId: userId,
+            },
+            dataType: 'json',
+            success: function (data) {
+                let historyList = JSON.parse(data.historyList);
+                console.log(historyList);
+
+                if (historyList.length === 0){
+                    $(".nodata-contain").show();
+                }
+
+                for (let i = 0; i < historyList.length; i++) {
+
+                    $("#history_list").append("<li>" +
+                        "<div class=\"r-info clearfix\">" +
+                        "<div class=\"cover-contain\">" +
+                        "<a class=\"preview\" href=\"video?"+ historyList[i].videoId +"\">" +
+                        "<div class=\"lazy-img\">" +
+                        "<img src=\"" + historyList[i].imagePath + "\">" +
+                        "</div>" +
+                        "</a>" +
+                        "</div>" +
+                        "<div class=\"r-txt\">" +
+                        "<a class=\"title\" href=\"video?"+ historyList[i].videoId +"\">" + historyList[i].videoName + "</a>" +
+                        "<p class=\"subtitle\"></p>" +
+                        "<div class=\"w-info\">" +
+                        "<span>" + timestampToTime(historyList[i].historyTime) + "</span>" +
+                        "</div>" +
+                        "<i class=\"history-delete\"></i>" +
+                        "</div>" +
+                        "</div>" +
+                        "</li>")
+                }
+            }
+        })
+    }
+
+</script>
+
+</body>
+</html>

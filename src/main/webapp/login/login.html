@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频网 - 登陆')"></head>
+
+<link rel="shortcut icon" th:href="@{/static/images/favicon.ico}">
+<link rel="stylesheet" th:href="@{/static/css/login/login.css}">
+<body>
+
+<div class="topHeader"></div>
+
+<div class="head_foot_content">
+    <div class="header">
+        <div class="lin">
+            <div class="tit">
+                <img th:src="@{/static/images/login/t2.png}" alt="登陆">
+            </div>
+        </div>
+
+        <div class="content-bd">
+            <div class="content-r">
+                <form>
+                    <div class="account box">
+                        <span id="accountSpan"></span>
+                        <input type="text" placeholder="你的手机号/邮箱" id="accountInput">
+                    </div>
+                    <div class="password box">
+                        <span id="passwordSpan"></span>
+                        <input type="password" placeholder="密码" id="passwordInput">
+                    </div>
+                    <div class="captcha box">
+                        <div class="captchaDiv">
+                            <span id="captchaSpan"></span>
+                            <a href="/forgetPassword">忘记密码?</a>
+                        </div>
+                        <input type="text" placeholder="验证码" id="captchaInput">
+                        <div id="captchaImageDiv">
+                            <img src="" id="captchaImage">
+                            <a id="reGetCaptchaImg">看不清楚?</a>
+                        </div>
+                        <p>
+                            <br>
+                            <input type="checkbox" class="rememberMe">记住我
+                            <span>不是自己的电脑上不要勾选此项</span>
+                        </p>
+                    </div>
+                    <br>
+                    <br>
+                    <div class="bottomButton">
+                        <a id="loginButton">登 录</a>
+                        <a href="register" class="registerButton">注 册</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+
+    let validAccount = false;
+    let accountType;
+    let validPassword = false;
+    let validCaptcha = false;
+
+    //初始加载
+    $(function () {
+        $(".topHeader").load("/common/loginHeader.html");
+        $(".footer").load("/common/footer.html");
+        getCaptcha();
+    });
+
+    //获取验证码
+    function getCaptcha(){
+        $("#captchaImage").attr('src',"/loginData?method=validateCode&time=" + new Date());
+    }
+
+    //手机号与邮箱校验
+    $("#accountInput").bind("blur input propertychange",function(){
+
+        let accountSpan = $("#accountSpan");
+        let account = $("#accountInput").val();
+
+        //邮箱校验通过
+        if(account.match(/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/)) {
+            $(accountSpan).html("");
+            validAccount = true;
+            accountType = 'mail';
+            return true;
+        }
+        //手机号校验通过
+        if (account.match(/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/)){
+            $(accountSpan).html("");
+            validAccount = true;
+            accountType = 'phone';
+            return true;
+            //输入为空
+        }else if (account.length === 0){
+            $(accountSpan).html("请输入注册时用的邮箱或者手机号");
+            validAccount = false;
+            return false
+            //输入不合法
+        } else {
+            $(accountSpan).html("请输入正确的手机号或者邮箱");
+            validAccount = false;
+            return false;
+        }
+    });
+
+    //密码校验
+    $("#passwordInput").bind("blur input propertychange",function(){
+        if ($(this).val().length === 0){
+            $("#passwordSpan").html("请输入密码");
+            validPassword = false;
+        }else {
+            validPassword = true;
+            $("#passwordSpan").html("");
+        }
+    });
+
+    //验证码校验
+    $("#captchaInput").bind("blur input propertychange",function(){
+        if ($(this).val().length === 0){
+            $("#captchaSpan").html("请输入验证码");
+            validCaptcha = false;
+        }else {
+            $("#captchaSpan").html("");
+            validCaptcha = true;
+        }
+    });
+
+    //重新获取验证码
+    $("#reGetCaptchaImg").click(function () {
+        getCaptcha();
+    });
+
+    //登陆
+    $("#loginButton").click(function () {
+
+        let code = $("#captchaInput").val();
+        let account = $("#accountInput").val();
+        let password = hex_md5(hex_md5($("#passwordInput").val()).toUpperCase()+code.toUpperCase()).toUpperCase();
+
+        if (validCaptcha === true && validPassword === true && validAccount === true){
+            $('#loginButton').html("正在登陆");
+            $.ajax({
+                type: 'post',
+                url: '/loginData',
+                data: {
+                    method: 'login',
+                    account: account,
+                    password: password,
+                    code:code,
+                    accountType:accountType
+                },
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    let msg = data.msg;
+
+                    if (msg === 'ok') {
+                        $.cookie('user_cookie', data.user, { expires: 7, path: '/', secure: false});
+                        window.location.href = "index";
+                    }else if(msg === 'invalid'){
+                        alert("验证码输入有误，请重新输入。");
+                        $('#loginButton').html("登 录");
+                        getCaptcha();
+                    }else if (msg === 'blank'){
+                        alert("该账号不存在");
+                        $('#loginButton').html("登 录");
+                        getCaptcha();
+                    }else if (msg === 'block'){
+                        alert("该账号已被封禁，请联系管理员");
+                        $('#loginButton').html("登 录");
+                        getCaptcha();
+                    } else if (msg === 'error') {
+                        alert("帐号或密码不正确。");
+                        $('#loginButton').html("登 录");
+                        getCaptcha();
+                    }
+                },
+                error: function (xhr, errorType, error) {
+                },
+                complete: function (xhr, status) {
+                }
+            });
+        } else {
+            alert("请检查各项输入");
+        }
+    })
+
+</script>
+</html>

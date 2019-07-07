@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+<body>
+<div class="main-con manage-con">
+	<div class="iframe-con">
+		<div class="table-box">
+			<div id="reload" style="display:none;"></div>
+			<div class="table-con">
+				<table class="layui-hide" id="table1"></table>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+	layui.use(['layer','form','table','element'], function(){
+		var layer = layui.layer
+				,form = layui.form
+				, table = layui.table
+				,element = layui.element;
+
+		//iframe 宽高
+		var iw=parent.$('#iframebox').width();
+		var ih=parent.$('#iframebox').height();
+		$('.iframe-con').width(iw).height(ih);
+		//表格高度
+		var theight=$('.left-operate').height() - 5;
+		var twidth=$('.left-operate').width() - 5;
+		//表格配置
+		table.render({
+			elem: '#table1'
+			, id: 'table1'
+			, height: theight
+			, url: '/reportManageData'
+			, method: 'post'
+			, where: {
+				method: 'getVideoReportList',
+			}
+			, parseData: function (res) {
+				return {
+					"code": JSON.parse(res.code),
+					"msg": res.msg,
+					"count": JSON.parse(res.count),
+					"data": JSON.parse(res.data)
+				};
+			}
+			,limit: 13
+			, cellMinWidth: 80
+			, page: true //开启分页
+			, cols: [[ //表头
+				{field: 'videoId', title: '视频编号', align: 'center'}
+				, {field: 'videoName', title: '视频名称', align: 'center'}
+				, {field: 'channelName', title: '视频分区', align: 'center'}
+				, {field: 'userName', title: '所属用户', align: 'center'}
+				, {field: 'videoUpTime', title: '上传时间', align: 'center'}
+				, {
+					field: 'operate', title: '操作', align: 'center', width: 200,
+					templet: function (d) {
+						return "<div class='oper-box clearfix'><span class='left view view-btn' videoId = '" + d.videoId + "'></span><span class='left ban edit-btn' videoId = '" + d.videoId + "' videoName = '" + d.videoName + "' videoStatus = '" + d.videoStatus + "'></span><span class='left ok del-btn tableDel' videoId = '" + d.videoId + "' videoName = '" + d.videoName + "'></span></div>"
+					}
+				}
+			]]
+		});
+		//查看
+		$(document).on('click', '.view-btn', function (data) {
+			parent.window.location.href = "video?" + $(this).attr('videoId');
+		});
+		//绑定事件
+		//编辑
+		$(document).on('click', '.edit-btn', function(data) {
+			parent.layer.open({
+				type: 2,
+				title: '封禁',
+				shadeClose: true,
+				shade: 0.8,
+				content: 'commentReportWin',
+				area: ['45%', '60%'],
+				offset: 'auto',
+				anim: 3,
+				isOutAnim: true
+			})
+		});
+		//删除
+		$(document).on('click', '.del-btn', function(data) {
+			parent.layer.open({
+				type: 2,
+				title: '通过',
+				shadeClose: true,
+				shade: 0.8,
+				content: 'videoReportWin',
+				area: ['45%', '60%'],
+				offset: 'auto',
+				anim: 3,
+				isOutAnim: true
+			})
+		});
+
+	});
+</script>
+</html>

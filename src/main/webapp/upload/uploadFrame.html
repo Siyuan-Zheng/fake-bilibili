@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('创作中心')"></head>
+<link th:href="@{/static/css/upload/uploadFrame.css}" rel="stylesheet">
+
+<body>
+
+<div videoFrameDiv1="" id="app" class="canary-container">
+    <div videoUploadDiv="" videoFrameDiv1="" class="upload-v2-container">
+        <div videoUpload="" videoUploadDiv="" id="homeDrop" class="upload-v2-step1-container" style="margin-top: 50px">
+            <div videoUpload="" class="upload-btn">
+                <div videoUpload="" class="upload-btn-img"></div>
+                <div videoUpload="" id="bili-upload-btn"></div>
+                <div videoUpload="" class="upload-btn-icon"></div>
+                <div videoUpload="" class="upload-btn-title">上传视频</div>
+            </div>
+            <div videoUpload="" class="back-btn-white-area"></div>
+            <div videoUpload="" class="upload-agreement">
+                <div videoUpload="" class="reg-1">
+                    <div videoUpload="">
+                        <a videoUpload="" href="javascript:void(0);">视频大小</a>
+                    </div>
+                    <div videoUpload="">
+                        <a videoUpload="" href="javascript:void(0);">视频格式</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div nextStep="" videoUploadDiv="" class="upload-v2-step2-container" style="display: none;">
+            <div nextStep="" class="file-content-v2-container">
+                <div videoPreview="" class="normal-v2-container">
+                    <div videoPreview="" class="normal-title-wrp">
+                        <h1 videoPreview="">基本信息</h1>
+                    </div>
+                    <div imagePreviewX="" videoPreview="" class="cover-v2-container">
+                        <div imagePreviewDiv="" imagePreviewX="" class="section-title-v2-container">
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">视频封面设置</h3>
+                            <p imagePreviewDiv="" class="section-title-v2-content-sub">
+                                （格式jpeg、png，文件大小≤5MB，建议尺寸≥1146*717，最低尺寸≥960*600）
+                            </p>
+                        </div>
+                        <div imagePreviewX="" class="cover-v2-detail-wrp">
+                            <div imagePreviewX="" class="cover-v2-preview">
+                                <div imagePreviewX="" class="cover-v2-preview-default">
+                                    <img imagePreviewX="" src="/static/images/space/video-placeholder.png" class="bili_tv"
+                                           style=" width: 100%; height: 100%;">
+                                    <span imagePreviewX="" class="cover-v2-upload-tip">上传封面</span>
+                                </div>
+                                <input imagePreviewX="" type="file" accept="image/jpeg, image/jpg, image/png"
+                                       id="imageInput"></div>
+                        </div>
+                    </div>
+                    <div videoPreview="" class="ui-v2-normal-line-white-divide"></div>
+                    <div listV="" videoPreview="" id="type-list-v2-container" class="type-list-v2-container">
+                        <div imagePreviewDiv="" listV="" class="section-title-v2-container">
+                            <p imagePreviewDiv="" class="section-title-v2-deg">*</p>
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">分区</h3>
+                        </div>
+                        <div listV="" class="type-list-v2-selector-wrp">
+                            <div selectV="" listV="" class="select-box-v2-container">
+                                <div selectV="" class="select-box-v2-controller" id="typeSelect">
+                                    <p selectV="" class="select-item-cont" id="channelName">点击选择</p>
+                                    <i selectV="" class="selebox-box-v2-drop-icon iconfont icon-ic_collapse"></i>
+                                </div>
+
+                                <div typeSeleteX="" class="drop-cascader-container" style="top: 50px; display: none">
+                                    <div typeSeleteX="" class="drop-cascader-pre-wrp" id="channelList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div videoPreview="" class="ui-v2-normal-line-white-divide"></div>
+                    <div data-v-b3b70444="" videoPreview="" class="content-title-v2-container">
+                        <div imagePreviewDiv="" data-v-b3b70444="" class="section-title-v2-container">
+                            <p imagePreviewDiv="" class="section-title-v2-deg">*</p>
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">标题</h3>
+                        </div>
+                        <div data-v-b3b70444="" class="content-title-v2-input-wrp">
+                            <div inputX="" data-v-b3b70444="" class="input-box-v2-1-container">
+                                <div inputX="" class="input-box-v2-1-instance">
+                                    <input inputX="" type="text" maxlength="80" placeholder="请输入稿件标题"
+                                           class="input-box-v2-1-val" id="videoName">
+                                </div>
+                                <p inputX="" class="input-box-v2-1-max-tip">0/80</p></div>
+                        </div>
+                    </div>
+                    <div videoPreview="" class="ui-v2-normal-line-white-divide"></div>
+                    <div tagD="" videoPreview="" id="content-tag-v2-container" class="content-tag-v2-container">
+                        <div imagePreviewDiv="" tagD="" class="section-title-v2-container">
+                            <p imagePreviewDiv="" class="section-title-v2-deg">*</p>
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">标签</h3>
+                        </div>
+                        <div tagD="" class="content-tag-v2-input-wrp">
+                            <div inputX="" tagD="" class="input-box-v2-1-container">
+
+                                <div tagD="" inputX="" class="content-tag-v2-pre-wrp" id="tagContent">
+                                </div>
+
+                                <div tagD="" inputX="" class="content-tag-v2-pre-wrp"></div>
+                                <div inputX="" class="input-box-v2-1-instance">
+                                    <input inputX="" type="text" maxlength="20" placeholder="按回车键Enter创建标签" class="input-box-v2-1-val" id="tagInput">
+                                </div>
+                                <p tagD="" inputX="" class="content-tag-v2-last-wrp">还可以添加<span id="tagLeft">5</span>个标签</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div videoPreview="" class="ui-v2-normal-line-white-divide"></div>
+                    <div contentX="" videoPreview="" class="content-desc-v2-container">
+                        <div imagePreviewDiv="" contentX="" class="section-title-v2-container">
+                            <h3 imagePreviewDiv="" class="section-title-v2-content-main">简介</h3>
+                        </div>
+                        <div contentX="" class="content-desc-v2-text-wrp">
+                            <div textAreaX="" contentX="" class="text-area-box-v2-container">
+                                <textarea textAreaX="" maxlength="250" class="text-area-box-v2-val placeholder-style" id="videoDesc"></textarea>
+                                <p textAreaX="" class="text-area-box-v2-max-tip">0/250</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div buttonX="" class="submit-button-group-v2-container">
+                    <span buttonX="" class="submit-btn-group-add" id="uploadBtn">立即投稿</span>
+                </div>
+            </div>
+            <div containerX="" nextStep="" class="auto-complete-container-v2" style="display: none;">
+                <div containerX="" class="auto-complete-body">
+                    <img containerX="" th:src="@{/static/images/upload/wait-upload.png}"
+                         alt="wait-upload">
+                    <p containerX="">请等待视频上传&nbsp;
+                        <a containerX="">取消上传&nbsp;</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="uploader-input-container"
+     style="position:absolute;top:0px;left:0px;height:1px;width:1px;overflow:hidden;opacity:0;">
+    <input type="file" accept=".mp4,.flv,.avi,.wmv,.mov,.webm,.mpeg4,.ts,.mpg,.rm,.rmvb,.mkv,.m4v" id="videoUpload">
+</div>
+</body>
+<script>
+
+    let videoFile;
+    let imageFile;
+
+    let tagLeftNum = 5;
+
+    let selectChannelId;
+
+    let tags = [];
+
+    $(function () {
+        loadChannel();
+    });
+
+    function removeTag(tagName) {
+        tagLeftNum += 1;
+        $("#tagLeft").html(tagLeftNum);
+        $("#"+tagName).remove();
+
+        tags.splice(tags.indexOf(tagName), 1);
+    }
+
+    function loadChannel(){
+        $.ajax({
+            type: 'post',
+            url: '/channelData',
+            data: {
+                method: 'getChannelList',
+            },
+            dataType: 'json',
+            success: function (data) {
+                let channelList = JSON.parse(data.channelList);
+
+                for (let i = 0; i < channelList.length; i++){
+                    $("#channelList").append("<div typeSeleteX=\"\" class=\"drop-cascader-pre-item\" onclick='selectChannel(\""+ channelList[i].channelName +"\"\,\""+ channelList[i].channelId +"\")'>" +
+                        "<p typeSeleteX=\"\" class=\"pre-item-content\">"+ channelList[i].channelName +"</p>" +
+                        "</div>")
+                }
+            }
+        })
+    }
+
+    function selectChannel(channelName, channelId){
+        $("#typeSelect").toggleClass("select-box-v2-controller-selected");
+        $(".drop-cascader-container").hide();
+
+        $("#channelName").html(channelName);
+        selectChannelId = channelId;
+    }
+
+    $("#uploadBtn").click(function () {
+
+        $(".auto-complete-container-v2").show();
+        $(".file-content-v2-container").hide();
+        console.log(videoFile);
+
+        let formData = new FormData;
+        let timestamp = (new Date()).getTime();
+        formData.append("video",videoFile);
+        formData.append("image",imageFile);
+
+        let videoName = $("#videoName").val();
+        let videoDesc = $("#videoDesc").val();
+        let videoTag = '';
+        for (let i = 0; i < tags.length; i++){
+            videoTag += tags[i];
+            videoTag += ",";
+        }
+        videoTag = videoTag.substring(0, videoTag.length - 1);
+
+        $.ajax({
+            url:"/dataUpload?method=uploadVideo",
+            type:"post",
+            data:formData,
+            processData:false,
+            contentType:false,
+            success: function (data) {
+                let dataJ = JSON.parse(data);
+                if (dataJ.msg === 'ok'){
+
+                    $.ajax({
+                        type: 'post',
+                        url: '/videoData',
+                        data: {
+                            method: 'addVideo',
+                            userId: user.userId,
+                            videoPath: dataJ.videoPath,
+                            videoName: videoName,
+                            videoUpTime: timestamp,
+                            videoDesc: videoDesc,
+                            videoTag: videoTag,
+                            operateTime: timestamp,
+                            imagePath: dataJ.imagePath,
+                            channelId: selectChannelId,
+                            historyTime: (new Date()).getTime()
+                        },
+                        dataType: 'json',
+                        success: function (data1) {
+                            if (data1.msg == 'ok'){
+                                top.location.href = "/doUpload"
+                            }
+                        }
+                    })
+                }else {
+                    alert("失败");
+                }
+            },
+            xhr: function () {
+                myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) { //检查upload属性是否存在
+                    //绑定progress事件的回调函数
+                    myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+                }
+                return myXhr; //xhr对象返回给jQuery使用
+            }
+        });
+    });
+
+    function progressHandlingFunction(event) {
+        var loaded = Math.floor(100 * (event.loaded / event.total)); //已经上传的百分比
+        console.log(loaded);
+        $("#progress-bar").html(loaded + "%").css("width", loaded + "%");
+    }
+
+    //添加视频
+    $("#videoUpload").change(function () {
+        videoFile = $("#videoUpload")[0].files[0];
+
+        console.log(videoFile);
+
+        $(".upload-v2-step1-container").hide();
+        $(".upload-v2-step2-container").show();
+    });
+
+    //添加封面
+    $("#imageInput").change(function () {
+        imageFile = $("#imageInput")[0].files[0];
+
+        let reader = new FileReader();
+        reader.onload = function () {
+            $(".bili_tv").attr("src", this.result);
+        };
+        reader.readAsDataURL(imageFile);
+        $(".upload-v2-step2-container").show();
+    });
+
+    $("#bili-upload-btn").click(function () {
+        $("#videoUpload").click();
+    });
+
+    $(".cover-v2-preview-default").click(function () {
+        $("#imageInput").click();
+    });
+
+    $("#typeSelect").click(function () {
+        if ($(this).hasClass("select-box-v2-controller-selected")){
+            $(this).toggleClass("select-box-v2-controller-selected");
+            $(".drop-cascader-container").hide();
+        } else {
+            $(".drop-cascader-container").show();
+            $(this).toggleClass("select-box-v2-controller-selected");
+        }
+    });
+
+    $("#tagInput").keypress(function (e) {
+        if (e.which == 13) {
+
+            if (tagLeftNum <= 0){
+                alert("不能再多了");
+            } else {
+                tagLeftNum -= 1;
+                $("#tagLeft").html(tagLeftNum);
+                let tag = $("#tagInput").val();
+                tags.push(tag);
+                $("#tagContent").append("<div tagX=\"\" tagD=\"\" class=\"label-item-v2-container\" inputX=\"\" id='"+ tag +"'>" +
+                    "<p tagX=\"\" class=\"label-item-v2-content\">"+ tag +"</p>" +
+                    "<i tagX=\"\" class=\"label-item-v2-close iconfont icon-guanbi\" onclick='removeTag(\""+ tag +"\")'></i>" +
+                    "</div>");
+
+                $("#tagInput").val('');
+            }
+        }
+    });
+
+</script>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('账号中心')"></head>
+<body>
+<div class="h">
+    <div class="wrapper">
+        <div class="h-forbid" style="display: none;">
+            <div class="f-wrap"><i class="f-icon"></i><span class="f-txt">该账号封禁中</span></div>
+        </div>
+        <div class="h-inner" style="background-image: url(/static/images/top/background.png)">
+            <div class="h-gradient"></div>
+            <div class="h-user">
+                <div class="h-info clearfix">
+                    <div class="h-avatar">
+                        <img src="" id="h-avatar">
+                        <a href="" class="avatar-cover">更换头像</a>
+                    </div>
+                    <div class="h-basic">
+                        <div>
+                            <span id="h-name"></span>
+                            <span id="h-gender" class="icon gender"></span>
+                            <a href="" lvl="5" class="h-level m-level" id="centerUserLevel"></a>
+                            <a href="" class="h-vipType" id="vip"></a>
+                        </div>
+                        <div class="h-basic-spacing">
+                            <h4 class="h-sign" style="display: block;"></h4>
+                            <input id="h-sign" type="text" placeholder="编辑个性签名" maxlength="60" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+
+    $(function () {
+        userInit();
+    });
+
+    function userInit() {
+        // alert(currentUser.userName);
+        $("#h-name").html(user.userName);
+
+        $("#h-avatar").attr("src",user.imagePath);
+
+        $("#centerUserLevel").attr("lvl", user.levelId);
+
+        if (user.sex === '0') {
+            $("#h-gender").addClass("female")
+        } else {
+            $("#h-gender").addClass("male")
+        }
+
+        if (user.userRightId == '2') {
+            $("#vip").addClass("normal-v")
+        } else if (user.userRightId == '3') {
+            $("#vip").addClass("annual-v")
+        } else if (user.userRightId == '1') {
+            $("#vip").hide();
+        }
+
+        $(".h-sign").html(user.userDesc);
+    }
+
+
+</script>
+</html>

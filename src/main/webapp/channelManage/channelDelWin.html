@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('枯木短视频后台管理')"></head>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/css/css.css}"/>
+	<body>
+		<div class="win-con">
+			<p class="del-confirm">是否确认删除"<span id="channelName"></span>"分区？</p>
+			<div class="btn-box clearfix">
+				<button class="layui-btn left qd">确定</button>
+				<button class="layui-btn right qx">取消</button>
+			</div>
+		</div>
+	</body>
+	<script>
+
+		let channelId = parent.selectChannel[0].channelId;
+		let channelName = parent.selectChannel[0].channelName;
+
+		$("#channelName").html(channelName);
+
+		layui.use(['layer','form','table','element'], function(){
+		  	let layer = layui.layer
+		  	,form = layui.form
+		  	, table = layui.table
+		  	,element = layui.element;
+
+
+			$(".qd").click(function () {
+				$.ajax({
+					type: 'post',
+					url: '/channelManageData',
+					data: {
+						method: 'isHaveVideo',
+						channelId: channelId,
+					},
+					dataType: 'json',
+					success: function (data) {
+						if (data.videoNum === 0){
+							deleteChannel();
+						}else {
+							alert("该分区已存在视频，无法删除");
+						}
+					}
+				})
+			});
+		  	
+			//弹窗按钮关闭
+		  	$('.qx').click(function(){
+				let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+				parent.layer.close(index); //再执行关闭   
+		  	});
+		});
+		function deleteChannel() {
+			$.ajax({
+				type: 'post',
+				url: '/channelManageData',
+				data: {
+					method: 'deleteChannel',
+					channelId: channelId,
+				},
+				dataType: 'json',
+				success: function (data) {
+					if (data.msg == "ok"){
+						alert("删除成功");
+						let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+						parent.layer.close(index); //再执行关闭
+						parent.reloadNav();
+					}
+				}
+			})
+		}
+	</script>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common/common.html :: common('账号验证')"></head>
+<link th:href="@{/static/css/account/security.css}" rel="stylesheet">
+
+<body>
+<div id="app">
+    <div class="bili-header-m report-wrap-module">
+        <div class="nav-menu" th:include="common/commonHeader.html :: commonHeader"></div>
+    </div>
+    <div class="top-banner">
+        <img src="/static/images/account/rl_top.png">
+    </div>
+    <div class="container">
+        <h3 content class="select-header">选择验证方式</h3>
+        <div content class="select-main">
+            <ul content class="select-list">
+                <li content>
+                    <span content class="select-icon icon-phone"></span>
+                    <div content class="select-info">
+                        <p content>通过手机验证</p>
+                        <span content>
+                            如果你的绑定手机可用，则可通过绑定的手机发送验证码修改
+                        </span>
+                    </div>
+                    <a content href="/phoneVerify" class="select-btn">
+                        立即验证
+                    </a>
+                </li>
+                <li content>
+                    <span content class="select-icon icon-mail"></span>
+                    <div content class="select-info">
+                        <p content>通过邮箱验证</p>
+                        <span content>
+                            如果你的账号绑定邮箱，则可通过向绑定邮箱发送验证码修改
+                        </span>
+                    </div>
+                    <a content href="/mailVerify" class="select-btn">
+                        立即验证
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>
